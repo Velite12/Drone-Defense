@@ -1,11 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Benchmark 2</title>
-    </head>
-    <body>      
-            <h1>Benchmark 2 goes here</h1>
-    </body>
+
+    <style>
+      html,
+      body,
+      #game-container {
+        margin: 0;
+        padding: 0;
+      }
+
+      #game-container {
+        min-width: 1vw;
+        min-height: 1vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #game-container > canvas {
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="game-container"></div>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.16.2/dist/phaser.js"></script>
+    <script src="./benchmark2.js" type="module"></script>
+  </body>
 </html>
