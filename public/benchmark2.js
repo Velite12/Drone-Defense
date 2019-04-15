@@ -48,6 +48,7 @@ var boxes;
 
 var time; //actual time
 var shotusedsingle = 1;
+var bullet;
 var maxAmmo;
 var timescale; //time in normal form, scaled to be readable
 var onscreencap = 1; //total amount of allowed enemies onscreen, adjusts with time, difficulty, level
@@ -152,18 +153,11 @@ var Box = new Phaser.Class({
     },
 
     
-     collectBox: function () {
-        //boxLayer.removeTileAt(tile.x, tile.y); // remove the tile/coin
-        this.destroy();
-        score++;
-        text1.setText("Points: "+score);
-        //generates more boxes
-        return false;
-    },
+     
     spawnBox: function (posx, posy){
         this.setPosition(Math.floor(posx), Math.floor(posy)+20);
-        this.body.bounce.y = 0.2;
-        this.body.setCollideWorldBounds(true);
+        
+        //this.body.setCollideWorldBounds(true);
         
         
 
@@ -173,9 +167,10 @@ var Box = new Phaser.Class({
     {
         
         
-        this.y += this.ySpeed;
+        //this.y += this.ySpeed;
         //this.scene.physics.add.collider(worldLayer, this);
-        this.scene.physics.add.overlap(player, this, this.collectBox(), null, this.scene);
+        
+        
 
     }
 
@@ -235,22 +230,28 @@ var Enemy = new Phaser.Class({
         else if (this.reachedDest == 1){
             if (this.y != this.destinationY){
                 this.y += this.ySpeed;
-                this.xSpeed = 0;
+                //this.xSpeed = 0;
             }
             if (this.y >= this.destinationY){
                 this.y = this.destinationY;
                 this.reachedDest = 2;
-                this.ySpeed = 0;
+                //this.ySpeed = 0;
             }
             
             debugtext.setText(this.y);
         }
         else if (this.reachedDest == 2){ //has dropped the package
             var boxdrop = boxes.get().setActive(true).setVisible(true);
-            boxdrop.spawnBox(this.destinationX, this.destinationY, this.scene);
+            boxdrop.spawnBox(this.x, this.y, this.scene);
+            
             this.reachedDest = 3;
         }
         else if (this.reachedDest == 3){ //is now returning to base
+            //this.ySpeed = 2;
+            this.y -= this.ySpeed;
+            if (this.y <= 5){
+                this.destroy();
+            }
         }
         
         //debugtext.setText(delta);
@@ -264,14 +265,14 @@ function preload() {
     this.load.image("tiles", "assets/tileset/custtiles1.png");
     this.load.tilemapTiledJSON('map', 'assets/tilemap/level1map.json');
     // tiles in spritesheet 
-    this.load.image("bullet", "assets/sprites/atlas/stone.png")
-    this.load.image("target", "assets/sprites/atlas/reticle.png")
+    this.load.image("bullet", "assets/sprites/stone.png")
+    this.load.image("target", "assets/sprites/reticle.png")
     // simple coin image
-    this.load.image('box', 'assets/sprites/atlas/amazonpackage.png');
-    this.load.image("enemy", 'assets/sprites/atlas/drone.png')
+    this.load.image('box', 'assets/sprites/amazonpackage.png');
+    this.load.image("enemy", 'assets/sprites/drone.png')
     // player animations
     //this.load.image('player', 'assets/sprites/neighbor.png');
-    this.load.spritesheet('player', 'assets/sprites/atlas/neighborwalk.png', {frameWidth: 11, frameHeight: 25});
+    this.load.spritesheet('player', 'assets/sprites/neighborwalk.png', {frameWidth: 11, frameHeight: 25});
 }
 
 function create() {
@@ -284,12 +285,14 @@ function create() {
 
     //class declaring
     playerBullets = this.physics.add.group({
-         classType: Bullet, runChildUpdate: true });
+        key: 'bullet' ,classType: Bullet, runChildUpdate: true });
 
     boxes = this.physics.add.group({
 
-        classType: Box, runChildUpdate: true 
+        key: 'box' , classType: Box, runChildUpdate: true, gravityY: 100,
+        
     });
+    
     enemies = this.physics.add.group({
 
         classType: Enemy, runChildUpdate: true 
@@ -302,7 +305,6 @@ function create() {
         'left': Phaser.Input.Keyboard.KeyCodes.A,
         'right': Phaser.Input.Keyboard.KeyCodes.D
     });
-
     worldLayer.setCollisionByProperty({ collides: true });
     //boxLayer.setCollisionByProperty({ collides: true });
     this.physics.world.bounds.width = worldLayer.width-5;
@@ -320,6 +322,7 @@ function create() {
     player.setBounce(0.2); // our player will bounce from items
     player.setCollideWorldBounds(true); // don't go out of the map
     this.physics.add.collider(worldLayer, player);
+    
 
 
 
@@ -396,6 +399,8 @@ function create() {
     var drone = enemies.get().setActive(true).setVisible(true);
     drone.spawnEnemy();
     
+
+    
     
 
 }
@@ -438,15 +443,14 @@ function update(time, delta) {
       //  spawnBoxes(); 
     
     this.input.on('pointerdown', function (pointer, time, lastFired) {
-        if (player.active === false)
-            return;
+        
         if (shotusedsingle === 1){
-            var bullet = playerBullets.get().setActive(true).setVisible(true);
+            bullet = playerBullets.get().setActive(true).setVisible(true);
             if (bullet)
             {
                 shotusedsingle = 0;
                 //bullet.setBounce(0);
-                this.physics.add.collider(worldLayer, bullet);
+                //this.physics.add.collider(worldLayer, bullet);
                 bullet.fire(player, reticle);
                 
                 
@@ -458,10 +462,31 @@ function update(time, delta) {
         }
         
     }, this);
+    this.physics.add.overlap(bullet, enemies, destroyEnemy, null, this);
     timescale = Math.floor(time/500);
     text3.setText("Health: "+player.health);
     text4.setText("Time: "+ timescale);
+    this.physics.add.collider(boxes, worldLayer);
+    //this.physics.add.collider(boxes, player);
+    this.physics.add.overlap(player, boxes, collectBox, null, this);
     
-   
+    
+}
+function collectBox (player, box) {
+    //boxLayer.removeTileAt(tile.x, tile.y); // remove the tile/coin
+    box.destroy();
+    score++;
+    text1.setText("Points: "+score);
+    //generates more boxes
+    return false;
+}
+function destroyEnemy (bullet, enemy) {
+    //boxLayer.removeTileAt(tile.x, tile.y); // remove the tile/coin
+    enemy.destroy();
+    bullet.destroy();
+    score+=5;
+    text1.setText("Points: "+score);
+    //generates more boxes
+    return false;
 }
 

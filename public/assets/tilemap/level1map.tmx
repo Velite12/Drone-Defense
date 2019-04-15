@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.2.3" orientation="orthogonal" renderorder="right-down" width="50" height="35" tilewidth="16" tileheight="16" infinite="0" nextlayerid="16" nextobjectid="5">
+<map version="1.2" tiledversion="1.2.3" orientation="orthogonal" renderorder="right-down" width="50" height="35" tilewidth="16" tileheight="16" infinite="0" nextlayerid="16" nextobjectid="9">
  <tileset firstgid="1" name="custtiles1" tilewidth="16" tileheight="16" tilecount="324" columns="18">
   <image source="../tileset/custtiles1.png" width="288" height="288"/>
   <tile id="18">
@@ -66,6 +66,18 @@
    <point/>
   </object>
   <object id="4" name="Spawn Point" type="Spawn Point" x="232" y="485.333">
+   <point/>
+  </object>
+  <object id="5" name="DropPoint1" type="DropPoint1" x="168.667" y="492">
+   <point/>
+  </object>
+  <object id="6" name="DropPoint2" type="DropPoint2" x="392" y="490">
+   <point/>
+  </object>
+  <object id="7" name="DropPoint3" type="DropPoint3" x="569.333" y="492">
+   <point/>
+  </object>
+  <object id="8" name="DropPoint4" type="DropPoint4" x="694" y="490.667">
    <point/>
   </object>
  </objectgroup>
