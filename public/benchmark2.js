@@ -142,7 +142,9 @@ var Box = new Phaser.Class({
         this.direction = 0;
         this.xSpeed = 0;
         this.ySpeed = 2;
-        this.setSize(24, 24, true);
+        this.scene = scene;
+        this.worldlayer = worldLayer;
+        this.setSize(14, 14, true);
         
        
         
@@ -150,19 +152,20 @@ var Box = new Phaser.Class({
     },
 
     
-     collectBox: function (sprite, tile) {
+     collectBox: function () {
         //boxLayer.removeTileAt(tile.x, tile.y); // remove the tile/coin
-        tile.disableBody(true, true);
+        this.destroy();
         score++;
         text1.setText("Points: "+score);
         //generates more boxes
         return false;
     },
-    spawnBox: function (posx, posy, scene){
-        this.setPosition(posx, posy);
+    spawnBox: function (posx, posy){
+        this.setPosition(Math.floor(posx), Math.floor(posy)+20);
         this.body.bounce.y = 0.2;
         this.body.setCollideWorldBounds(true);
-        scene.physics.add.collider(worldLayer, this.body);
+        
+        
 
     },
 
@@ -171,7 +174,8 @@ var Box = new Phaser.Class({
         
         
         this.y += this.ySpeed;
-        
+        //this.scene.physics.add.collider(worldLayer, this);
+        this.scene.physics.add.overlap(player, this, this.collectBox(), null, this.scene);
 
     }
 
@@ -191,7 +195,7 @@ var Enemy = new Phaser.Class({
         this.direction = 0;
         this.xSpeed = 2;
         this.ySpeed = 2;
-        this.destinationX = 400;
+        this.destinationX = 150*(Math.floor(Math.random() * 4) + 1);
         this.destinationY = 400;
         this.originX = Math.floor(Math.random() * 800) + 0;
         this.originY = Math.floor(Math.random() * 300) + 0;
@@ -233,7 +237,7 @@ var Enemy = new Phaser.Class({
                 this.y += this.ySpeed;
                 this.xSpeed = 0;
             }
-            if (this.y > this.destinationY){
+            if (this.y >= this.destinationY){
                 this.y = this.destinationY;
                 this.reachedDest = 2;
                 this.ySpeed = 0;
@@ -243,7 +247,7 @@ var Enemy = new Phaser.Class({
         }
         else if (this.reachedDest == 2){ //has dropped the package
             var boxdrop = boxes.get().setActive(true).setVisible(true);
-            boxdrop.spawnBox(this.x, this.y, this.scene);
+            boxdrop.spawnBox(this.destinationX, this.destinationY, this.scene);
             this.reachedDest = 3;
         }
         else if (this.reachedDest == 3){ //is now returning to base
@@ -302,7 +306,7 @@ function create() {
     worldLayer.setCollisionByProperty({ collides: true });
     //boxLayer.setCollisionByProperty({ collides: true });
     this.physics.world.bounds.width = worldLayer.width-5;
-    this.physics.world.bounds.height = worldLayer.height-55;
+    this.physics.world.bounds.height = worldLayer.height-65;
 
     // create the player sprite    
     //player = this.physics.add.sprite(500, 500, 'player'); 
@@ -391,11 +395,7 @@ function create() {
     
     var drone = enemies.get().setActive(true).setVisible(true);
     drone.spawnEnemy();
-    drone = enemies.get().setActive(true).setVisible(true);
     
-    drone.spawnEnemy();
-    drone = enemies.get().setActive(true).setVisible(true);
-    drone.spawnEnemy();
     
 
 }
