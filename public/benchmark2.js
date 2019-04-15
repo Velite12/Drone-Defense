@@ -22,7 +22,7 @@ var game = new Phaser.Game(config);
 
 var map;
 var player;
-var enemies;
+
 var cursors;
 var worldLayer, boxLayer;
 
@@ -32,17 +32,27 @@ var text1;
 var text2;
 var text3;
 var text4;
+var debugtext;
 
 var level;
 var diff;
 var healthpoints;
 var reticle;
 var moveKeys;
+
+//class groups
 var playerBullets;
 var enemyBullets;
-var time;
+var enemies;
+var boxes;
+
+var time; //actual time
 var shotusedsingle = 1;
 var maxAmmo;
+var timescale; //time in normal form, scaled to be readable
+var onscreencap = 1; //total amount of allowed enemies onscreen, adjusts with time, difficulty, level
+var onscreencount = 0; //current amount of enemies onscreen, adjusts with time, difficulty, level
+
 var Bullet = new Phaser.Class({
 
     Extends: Phaser.GameObjects.Image,
@@ -119,59 +129,49 @@ var Bullet = new Phaser.Class({
 var Box = new Phaser.Class({
 
     Extends: Phaser.GameObjects.Image,
-
+    
     initialize:
-
+    
     // Box Constructor
-    function Enemy (scene)
+    function Box (scene)
     {
+        //var boxsample = Phaser.GameObjects.Sprite.call(this, scene, 0, 0, 'box');
         Phaser.GameObjects.Image.call(this, scene, 0, 0, 'box');
         this.speed = 0.0;
         this.born = 0;
         this.direction = 0;
         this.xSpeed = 0;
-        this.ySpeed = 300;
+        this.ySpeed = 2;
         this.setSize(24, 24, true);
+        
+       
         
         
     },
 
-    // Fires a bullet from the player to the reticle
-    collectBox: function (sprite, tile) {
+    
+     collectBox: function (sprite, tile) {
         //boxLayer.removeTileAt(tile.x, tile.y); // remove the tile/coin
         tile.disableBody(true, true);
         score++;
         text1.setText("Points: "+score);
         //generates more boxes
-        if (score%4 == 0 && score > 0 && score < 52){
-            //respawns old boxes
-            /*boxes.children.iterate(function (child) {
-    
-                child.enableBody(true, child.x, 0, true, true);
-    
-            });*/
-    
-            
-            for(var i = 0; i < 4; i++){
-                var x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
-                var newbox = boxes.create(x, 16, 'box');
-                newbox.setBounce(0.2);
-                newbox.setCollideWorldBounds(true);
-                newbox.setVelocity(0, 20);
-            }
-            
-        }
         return false;
+    },
+    spawnBox: function (posx, posy, scene){
+        this.setPosition(posx, posy);
+        this.body.bounce.y = 0.2;
+        this.body.setCollideWorldBounds(true);
+        scene.physics.add.collider(worldLayer, this.body);
+
     },
 
     update: function (time, delta)
     {
         
         
-        this.y += this.ySpeed * delta;
+        this.y += this.ySpeed;
         
-
-
 
     }
 
@@ -182,37 +182,74 @@ var Enemy = new Phaser.Class({
 
     initialize:
 
-    // Box Constructor
+    // Enemy Constructor
     function Enemy (scene)
     {
         Phaser.GameObjects.Image.call(this, scene, 0, 0, 'enemy');
         this.speed = 0.0;
         this.born = 0;
         this.direction = 0;
-        this.xSpeed = 10;
-        this.ySpeed = 0;
-        this.destinationX = 
-        this.setSize(24, 24, true);
+        this.xSpeed = 2;
+        this.ySpeed = 2;
+        this.destinationX = 400;
+        this.destinationY = 400;
+        this.originX = Math.floor(Math.random() * 800) + 0;
+        this.originY = Math.floor(Math.random() * 300) + 0;
+        this.reachedDest = 0;
+        this.scene = scene;
+        this.setSize(60, 60, true);
         
         
     },
 
     spawnEnemy: function(){
-        this.setPosition(0, 200);
+        this.setPosition(this.originX, this.originY);
+        
+        
     },
 
     update: function (time, delta)
     {
+    
+        if (this.reachedDest == 0){  //has not reached destination  
+            if (this.x < this.destinationX-10 || this.x > this.destinationX+10){
+                if (this.x > this.destinationX)
+                    this.x -= this.xSpeed;
+                else
+                    this.x += this.xSpeed;
+            }
+            else{
+                this.x = this.destinationX;
+                this.reachedDest = 1;
+                
+                
+                
+                
+            }
+            
+        }
+        else if (this.reachedDest == 1){
+            if (this.y != this.destinationY){
+                this.y += this.ySpeed;
+                this.xSpeed = 0;
+            }
+            if (this.y > this.destinationY){
+                this.y = this.destinationY;
+                this.reachedDest = 2;
+                this.ySpeed = 0;
+            }
+            
+            debugtext.setText(this.y);
+        }
+        else if (this.reachedDest == 2){ //has dropped the package
+            var boxdrop = boxes.get().setActive(true).setVisible(true);
+            boxdrop.spawnBox(this.x, this.y, this.scene);
+            this.reachedDest = 3;
+        }
+        else if (this.reachedDest == 3){ //is now returning to base
+        }
         
-        if (this.x == 500){
-            this.x -= this.xSpeed;
-        }
-        else if (this.x == 200){
-            this.x += this.xSpeed;
-        }
-        else if (this.x < 200 || this.x > 500){
-            this.x += this.xSpeed;
-        }
+        //debugtext.setText(delta);
     }
 
 });
@@ -245,7 +282,7 @@ function create() {
     playerBullets = this.physics.add.group({
          classType: Bullet, runChildUpdate: true });
 
-    Box = this.physics.add.group({
+    boxes = this.physics.add.group({
 
         classType: Box, runChildUpdate: true 
     });
@@ -265,7 +302,7 @@ function create() {
     worldLayer.setCollisionByProperty({ collides: true });
     //boxLayer.setCollisionByProperty({ collides: true });
     this.physics.world.bounds.width = worldLayer.width-5;
-    this.physics.world.bounds.height = worldLayer.height-5;
+    this.physics.world.bounds.height = worldLayer.height-55;
 
     // create the player sprite    
     //player = this.physics.add.sprite(500, 500, 'player'); 
@@ -315,6 +352,12 @@ function create() {
         fill: '#ffffff'
     });
     text4.setScrollFactor(0);
+    //debug
+    debugtext = this.add.text(250, 570, '0', {
+        fontSize: '20px',
+        fill: '#ffffff'
+    });
+    debugtext.setScrollFactor(0);
 
 
     // Set sprite variables
@@ -345,7 +388,13 @@ function create() {
             reticle.y += pointer.movementY;
         }
     }, this);
+    
     var drone = enemies.get().setActive(true).setVisible(true);
+    drone.spawnEnemy();
+    drone = enemies.get().setActive(true).setVisible(true);
+    
+    drone.spawnEnemy();
+    drone = enemies.get().setActive(true).setVisible(true);
     drone.spawnEnemy();
     
 
@@ -409,8 +458,10 @@ function update(time, delta) {
         }
         
     }, this);
+    timescale = Math.floor(time/500);
     text3.setText("Health: "+player.health);
-    text4.setText("Time: "+Number.parseInt(time/500));
+    text4.setText("Time: "+ timescale);
     
+   
 }
 
