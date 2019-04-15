@@ -1,0 +1,17 @@
+{
+	"frames":[
+		{"filename":"returnButtonHover","frame":{"x":64,"y":64,"w":128,"h":128},"spriteSourceSize":{"x":0,"y":0,"w":128,"h":128},"sourceSize":{"w":32,"h":32}},
+		{"filename":"returnButton","frame":{"x":192,"y":64,"w":128,"h":128},"spriteSourceSize":{"x":0,"y":0,"w":128,"h":128},"sourceSize":{"w":32,"h":32}},
+    {"filename":"controlsButtonHover","frame":{"x":64,"y":192,"w":128,"h":128},"spriteSourceSize":{"x":0,"y":0,"w":128,"h":128},"sourceSize":{"w":32,"h":32}},
+		{"filename":"controlsButton","frame":{"x":192,"y":192,"w":128,"h":129},"spriteSourceSize":{"x":0,"y":0,"w":128,"h":128},"sourceSize":{"w":32,"h":32}},
+    {"filename":"helpButtonHover","frame":{"x":64,"y":256,"w":128,"h":128},"spriteSourceSize":{"x":0,"y":0,"w":128,"h":128},"sourceSize":{"w":32,"h":32}},
+		{"filename":"helpButton","frame":{"x":192,"y":256,"w":128,"h":128},"spriteSourceSize":{"x":0,"y":0,"w":128,"h":128},"sourceSize":{"w":32,"h":32}},
+    {"filename":"settingsButtonHover","frame":{"x":64,"y":320,"w":128,"h":128},"spriteSourceSize":{"x":0,"y":0,"w":128,"h":128},"sourceSize":{"w":32,"h":32}},
+		{"filename":"settingsButton","frame":{"x":192,"y":320,"w":128,"h":128},"spriteSourceSize":{"x":0,"y":0,"w":128,"h":128},"sourceSize":{"w":32,"h":32}},
+    {"filename":"levelSelectButtonHover","frame":{"x":64,"y":384,"w":128,"h":128},"spriteSourceSize":{"x":0,"y":0,"w":128,"h":128},"sourceSize":{"w":32,"h":32}},
+		{"filename":"levelSelectButton","frame":{"x":192,"y":384,"w":128,"h":128},"spriteSourceSize":{"x":0,"y":0,"w":128,"h":128},"sourceSize":{"w":32,"h":32}},
+    {"filename":"newGameButtonHover","frame":{"x":64,"y":448,"w":128,"h":128},"spriteSourceSize":{"x":0,"y":0,"w":128,"h":128},"sourceSize":{"w":32,"h":32}},
+		{"filename":"newGameButton","frame":{"x":192,"y":448,"w":128,"h":128},"spriteSourceSize":{"x":0,"y":0,"w":128,"h":128},"sourceSize":{"w":32,"h":32}},
+	],
+	"meta":{"app":"https://www.leshylabs.com/apps/sstool/","version":"Leshy SpriteSheet Tool v0.8.4","image":"spritesheet.png","size":{"w":512,"h":407},"scale":1}
+}
