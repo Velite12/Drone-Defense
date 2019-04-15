@@ -234,6 +234,7 @@ var GameScene = new Phaser.Class({
     },
 
   preload: function() {
+    window.location.hash = "game";
     // map made with Tiled in JSON format
     this.load.image("tiles", "assets/tileset/custtiles1.png");
     this.load.tilemapTiledJSON('map', 'assets/tilemap/level1map.json');

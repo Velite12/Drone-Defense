@@ -73,8 +73,17 @@ var Preloader = new Phaser.Class({
 		this.loadingbar_fill.destroy();
 		this.preloadSprite = null;
 
+		if(window.location.hash){
 		// start actual game
+		console.log()
+		if(this.scene.getIndex(window.location.hash.slice(1)) != -1){
+			this.scene.start(''+window.location.hash.slice(1)+'');
+		}else{
+			this.scene.start('mainmenu');
+		}
+	}else{
 		this.scene.start('mainmenu');
+	}
 
 	}
 });
