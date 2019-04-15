@@ -31,6 +31,7 @@ var MainMenu = new Phaser.Class({
     window.location.hash = "mainmenu";
     this.load.image("tiles", "assets/tileset/custtiles1.png");
     this.load.image("logo", "assets/branding/logo.png");
+    this.load.spritesheet("buttonSpriteSheet", "assets/sprites/buttons/buttonSpriteSheet.png", 128, 128);
     this.load.tilemapTiledJSON('map', 'assets/tilemap/level1map.json');
   },
 
@@ -44,8 +45,8 @@ var MainMenu = new Phaser.Class({
     worldLayer = map.createDynamicLayer("BackLayer", tileset, 0, 0);
 
     var logo = this.add.sprite(400, 140, 'logo');
-    this.newgame = this.addButton(400, 260, 'sprites', this.doStart, this, 'btn_quest_hl', 'btn_quest', 'btn_quest_hl', 'btn_quest');
-    this.levelsel = this.addButton(320, 320, 'sprites', this.doLevel, this, 'btn_play_hl', 'btn_play', 'btn_play_hl', 'btn_play');
+    this.newgame = this.addButton(400, 260, 'buttonSpriteSheet', this.doStart, this, 'btn_quest_hl', 'btn_quest', 'btn_quest_hl', 'btn_quest');
+    this.levelsel = this.addButton(320, 320, 'buttonSpriteSheet', this.doLevel, this, 'btn_play_hl', 'btn_play', 'btn_play_hl', 'btn_play');
     this.controls = this.addButton(320, 380, 'sprites', this.doControls, this, 'btn_quest_hl', 'btn_quest', 'btn_quest_hl', 'btn_quest');
     this.settings = this.addButton(480, 320, 'sprites', this.doSettings, this, 'btn_play_hl', 'btn_play', 'btn_play_hl', 'btn_play');
     this.help = this.addButton(480, 380, 'sprites', this.doHelp, this, 'btn_quest_hl', 'btn_quest', 'btn_quest_hl', 'btn_quest');
