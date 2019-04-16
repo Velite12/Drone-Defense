@@ -17,6 +17,7 @@ const config = {
 
     }
 };
+
 /* currently the only game elements added are:
 weapons: rock
 drone: level 1 drone
@@ -26,9 +27,13 @@ package: amazon package
 
 
 var game = new Phaser.Game(config);
+
+
+
 var clock;
 var map;
 var player;
+var paused;
 
 var cursors;
 var worldLayer, boxLayer;
@@ -168,7 +173,7 @@ var Box = new Phaser.Class({
     
      
     spawnBox: function (posx, posy){
-        this.born = 0;
+        this.born = 1;
         this.setPosition(Math.floor(posx), Math.floor(posy)+20);
         
         //this.body.setCollideWorldBounds(true);
@@ -179,7 +184,10 @@ var Box = new Phaser.Class({
 
     update: function (time, delta)
     {
-        this.born += delta;
+        if(this.born >= 1){
+            this.born += delta;
+        }
+        
         //debugtext.setText(this.born);
         if (this.born > 5000)
         {
@@ -187,6 +195,7 @@ var Box = new Phaser.Class({
             //this.setVisible(false);
             //shotusedsingle = 1;
             //text2.setText("Ammo: "+shotusedsingle);
+            player.health--;
             this.destroy();
             
         }
@@ -440,6 +449,7 @@ function create() {
                 bullet.fire(player, reticle);
                 
                 this.physics.add.collider(bullet, enemies, destroyEnemy);
+                this.physics.add.collider(bullet, worldLayer);
                 shotusedsingle = 0;
                 
                 text2.setText("Ammo: "+shotusedsingle);
@@ -448,6 +458,8 @@ function create() {
         }
         
     }, this);
+    
+    
     
     //clock.addEvent({ delay: 5000,  loop: true, callback: spawnEnemy(), callbackScope: this});
     intervalID = window.setInterval(spawnEnemy, maxSpawnRate-stacks);
@@ -499,7 +511,20 @@ function update(time, delta) {
     this.physics.add.collider(boxes, worldLayer);
     //this.physics.add.collider(boxes, player);
     this.physics.add.overlap(player, boxes, collectBox, null, this);
-    
+    if (player.health == 0){
+        // Display word "Game Over" at center of the screen game
+        var gameOverText = this.add.text(game.config.width/4, game.config.height / 2, 'GAME OVER', { fontSize: '32px', fill: '#fff' });
+
+        // Set z-index just in case your text show behind the background.
+        gameOverText.setDepth(1);
+        //game.lockRender = true;
+        this.paused = 1;
+        clearInterval(intervalID);
+        this.scene.pause();
+            
+        
+        
+    }
     //drone.spawnEnemy();
     
     
