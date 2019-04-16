@@ -1,28 +1,31 @@
 var textStyle = {
-    font: "normal 14px Arial",
-    fill: '#ffffff',
-    align: 'left',
-    wordWrap:{
-      width: 300, useAdvancedWrap: true
-    }
+  font: "normal 14px Arial",
+  fill: '#ffffff',
+  align: 'left',
+  wordWrap: {
+    width: 300,
+    useAdvancedWrap: true
+  }
 };
 
 var headerStyle = {
-    font: "normal 18px Arial",
-    fill: '#ffffff',
-    align: 'center',
-    wordWrap:{
-      width: 300, useAdvancedWrap: true
-    }
+  font: "normal 18px Arial",
+  fill: '#ffffff',
+  align: 'center',
+  wordWrap: {
+    width: 300,
+    useAdvancedWrap: true
+  }
 };
 
 var titleStyle = {
-    font: "normal 24px Arial",
-    fill: '#ffffff',
-    align: 'center',
-    wordWrap:{
-      width: 300, useAdvancedWrap: true
-    }
+  font: "normal 24px Arial",
+  fill: '#ffffff',
+  align: 'center',
+  wordWrap: {
+    width: 300,
+    useAdvancedWrap: true
+  }
 };
 
 var MainMenu = new Phaser.Class({
@@ -57,14 +60,11 @@ var MainMenu = new Phaser.Class({
     worldLayer = map.createDynamicLayer("BackLayer", tileset, 0, 0);
 
     var logo = this.add.sprite(400, 140, 'logo');
-    this.add.image(160, 100, 'buttons', 'helpButtonHover');
     this.newgame = this.addButton(400, 260, 'buttons', this.doStart, this, 'newGameButtonHover', 'newGameButton', 'newGameButtonHover', 'controlsButton');
     this.levelsel = this.addButton(320, 320, 'buttons', this.doLevel, this, 'levelSelectButtonHover', 'levelSelectButton', 'levelSelectButtonHover', 'levelSelectButton');
     this.controls = this.addButton(320, 380, 'buttons', this.doControls, this, 'controlsButtonHover', 'controlsButton', 'controlsButtonHover', 'controlsButton');
     this.settings = this.addButton(480, 320, 'buttons', this.doSettings, this, 'settingsButtonHover', 'settingsButton', 'settingsButtonHover', 'settingsButtonHover');
     this.help = this.addButton(480, 380, 'buttons', this.doHelp, this, 'helpButtonHover', 'helpButton', 'helpButtonHover', 'help');
-
-    console.log(this);
   },
 
   doStart: function() {
@@ -120,8 +120,8 @@ var LevelMenu = new Phaser.Class({
     var logo = this.add.sprite(400, 140, 'logo');
 
     // add tutorial and start button
-    this.exit = this.addButton(400, 420, 'sprites', this.doReturn, this, 'returnButtonHover', 'returnButton', 'returnButtonHover', 'returnButton');
-    this.firstLevel = this.addButton(350, 300, 'sprites', this.launchLevelOne, this, 'sprites', 'sprites', 'sprites', 'sprites');
+    this.exit = this.addButton(400, 420, 'buttons', this.doReturn, this, 'returnButtonHover', 'returnButton', 'returnButtonHover', 'returnButton');
+    this.firstLevel = this.addButton(400, 300, 'buttons', this.launchLevelOne, this, 'level1ButtonHover', 'level1Button', 'level1ButtonHover', 'level1Button');
   },
 
   doReturn: function() {
@@ -176,10 +176,10 @@ var ControlsMenu = new Phaser.Class({
       "Weapon swap = Right Click"
     ]
 
-    this.add.text(275,200,controls,headerStyle);
+    this.add.text(275, 200, controls, headerStyle);
 
     // add tutorial and start button
-    this.exit = this.addButton(400, 420, 'sprites', this.doReturn, this, 'btn_quest_hl', 'btn_quest', 'btn_quest_hl', 'btn_quest');
+    this.exit = this.addButton(400, 420, 'buttons', this.doReturn, this, 'returnButtonHover', 'returnButton', 'returnButtonHover', 'returnButton');
   },
 
   doReturn: function() {
@@ -219,7 +219,7 @@ var SettingsMenu = new Phaser.Class({
     var logo = this.add.sprite(400, 140, 'logo');
 
     // add tutorial and start button
-    this.exit = this.addButton(400, 420, 'sprites', this.doReturn, this, 'btn_quest_hl', 'btn_quest', 'btn_quest_hl', 'btn_quest');
+    this.exit = this.addButton(400, 420, 'buttons', this.doReturn, this, 'returnButtonHover', 'returnButton', 'returnButtonHover', 'returnButton');
   },
 
   doReturn: function() {
@@ -275,15 +275,15 @@ var HelpMenu = new Phaser.Class({
       "The main character is a southern gun-loving obese male who isn't too familiar with advanced technology and firmly believes the world is better without it."
     ]
 
-    this.add.text(275,210,"Game Designed By",headerStyle);
-    this.add.text(275,230,madeBy,textStyle);
-    this.add.text(50,270,"Story",headerStyle);
-    this.add.text(50,290,story,textStyle);
-    this.add.text(500,270,"Characters",headerStyle);
-    this.add.text(500,290,story,textStyle);
+    this.add.text(275, 210, "Game Designed By", headerStyle);
+    this.add.text(275, 230, madeBy, textStyle);
+    this.add.text(50, 270, "Story", headerStyle);
+    this.add.text(50, 290, story, textStyle);
+    this.add.text(500, 270, "Characters", headerStyle);
+    this.add.text(500, 290, story, textStyle);
 
     // add tutorial and start button
-    this.exit = this.addButton(400, 420, 'sprites', this.doReturn, this, 'btn_quest_hl', 'btn_quest', 'btn_quest_hl', 'btn_quest');
+    this.exit = this.addButton(400, 420, 'buttons', this.doReturn, this, 'returnButtonHover', 'returnButton', 'returnButtonHover', 'returnButton');
   },
 
   doReturn: function() {
