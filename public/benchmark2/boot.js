@@ -15,6 +15,7 @@ var Boot = new Phaser.Class({
     {
 		this.load.image('loadingbar_bg', 'assets/sprites/preloader/loadingbar_bg.png');
 		this.load.image('loadingbar_fill', 'assets/sprites/preloader/loadingbar_fill.png');
+    this.load.atlas('buttons', 'assets/sprites/buttons/buttons.png', 'assets/sprites/buttons/buttons.json');
     },
 
     create: function ()
