@@ -45,6 +45,8 @@ var text2;
 var text3;
 var text4;
 var debugtext;
+var speedcap;
+var boxlife; //allowed time for box to exist
 
 var level;
 var diff;
@@ -190,7 +192,7 @@ var Box = new Phaser.Class({
         }
         
         //debugtext.setText(this.born);
-        if (this.born > 5000)
+        if (this.born > 6000-(1000*boxlife))
         {
             //this.setActive(false);
             //this.setVisible(false);
@@ -222,12 +224,12 @@ var Enemy = new Phaser.Class({
         this.speed = 0.0;
         this.born = 0;
         this.direction = 0;
-        this.xSpeed = 2;
-        this.ySpeed = 2;
+        this.xSpeed = diff;//2
+        this.ySpeed = diff;//2
         this.destinationX = (150+(Math.floor(Math.random() * 15) + 0))*(Math.floor(Math.random() * 4) + 1);
         this.destinationY = 400;
         this.originX = Math.floor(Math.random() * 800) + 0;
-        this.originY = Math.floor(Math.random() * 300) + 0;
+        this.originY = Math.floor(Math.random() * 200) + 0;
         this.reachedDest = 0;
         this.scene = scene;
         this.setSize(12, 12, true);
@@ -236,6 +238,12 @@ var Enemy = new Phaser.Class({
     },
 
     spawnEnemy: function(){
+        if (this.xSpeed > speedcap){
+            this.xSpeed = speedcap;
+        }
+        if (this.ySpeed > speedcap){
+            this.ySpeed = speedcap;
+        }
         this.setPosition(this.originX, this.originY);
         
         
@@ -319,9 +327,11 @@ function create() {
     map = this.make.tilemap({key: 'map'});
     level = 1; 
     diff = 1; //easy
-    maxSpawnRate = 5000*diff*level;
+    maxSpawnRate = 10000*diff*level;
     stacks = 0;
     timeintervals = [];
+    speedcap = 2+level+diff;
+    boxlife = diff;
 
     const tileset = map.addTilesetImage("custtiles1", "tiles");
 
@@ -401,12 +411,12 @@ function create() {
         fill: '#ffffff'
     });
     text4.setScrollFactor(0);
-    //debug
-    /*debugtext = this.add.text(250, 570, '0', {
+    debugtext = this.add.text(200, 570, 'Intensity: ', {
         fontSize: '20px',
         fill: '#ffffff'
     });
-    debugtext.setScrollFactor(0);*/
+    debugtext.setScrollFactor(0);
+    debugtext.setText("Intensity: "+diff);
 
 
     // Set sprite variables
@@ -464,7 +474,7 @@ function create() {
     
     
     //clock.addEvent({ delay: 5000,  loop: true, callback: spawnEnemy(), callbackScope: this});
-    intervalID = window.setInterval(spawnEnemy, maxSpawnRate-stacks);
+    intervalID = window.setInterval(spawnEnemy, 5000);
     timeintervals.push(intervalID);
 }
 
@@ -478,7 +488,7 @@ function update(time, delta) {
             frameRate: 10,
             repeat: -1
         });
-        player.body.setVelocityX(-200); // move left
+        player.body.setVelocityX(-175); // move left
         player.anims.play('walk', true); // play walk animation
         player.flipX= true; // flip the sprite to the left
     }
@@ -490,7 +500,7 @@ function update(time, delta) {
             frameRate: 10,
             repeat: -1
         });
-        player.body.setVelocityX(200); // move right
+        player.body.setVelocityX(175); // move right
         player.anims.play('walk', true); // play walk animatio
         player.flipX = false; // use the original sprite looking to the right
     } else {
@@ -555,9 +565,11 @@ function destroyEnemy (bullet, enemy) {
     //bullet.destroy();
     if(stacks < maxSpawnRate-10){
         stacks+=10*diff*level;
-        if(stacks%(50/diff) == 0){
-            intervalID = window.setInterval(spawnEnemy, maxSpawnRate-stacks);
+        if(stacks%(30/diff) == 0){
+            intervalID = window.setInterval(spawnEnemy, maxSpawnRate-stacks*diff);
             timeintervals.push(intervalID);
+            diff++;
+            debugtext.setText("Intensity: "+diff);
         }
             
     }
