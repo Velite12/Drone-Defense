@@ -44,6 +44,7 @@ var MainMenu = new Phaser.Class({
     this.load.image("logo", "assets/branding/logo.png");
     this.load.spritesheet("buttonSpriteSheet", "assets/sprites/buttons/buttonSpriteSheet.png", 128, 128);
     this.load.tilemapTiledJSON('map', 'assets/tilemap/level1map.json');
+    this.load.atlas('buttons', 'assets/buttons/buttons.png', 'assets/buttons/buttons.json');
   },
 
   create: function() {
@@ -56,11 +57,14 @@ var MainMenu = new Phaser.Class({
     worldLayer = map.createDynamicLayer("BackLayer", tileset, 0, 0);
 
     var logo = this.add.sprite(400, 140, 'logo');
-    this.newgame = this.addButton(400, 260, 'buttons', this.doStart, this, 'newGameButtonHover', 'newGameButton', 'newGameButtonHover', 'newGameButton');
+    this.add.image(160, 100, 'buttons', 'helpButtonHover');
+    this.newgame = this.addButton(400, 260, 'buttons', this.doStart, this, 'newGameButtonHover', 'newGameButton', 'newGameButtonHover', 'controlsButton');
     this.levelsel = this.addButton(320, 320, 'buttons', this.doLevel, this, 'levelSelectButtonHover', 'levelSelectButton', 'levelSelectButtonHover', 'levelSelectButton');
     this.controls = this.addButton(320, 380, 'buttons', this.doControls, this, 'controlsButtonHover', 'controlsButton', 'controlsButtonHover', 'controlsButton');
-    this.settings = this.addButton(480, 320, 'buttons', this.doSettings, this, 'settingsButtonHover', 'settingsButton', 'settingsButtonHover', 'settingsButton');
-    this.help = this.addButton(480, 380, 'buttons', this.doHelp, this, 'helpButtonHover', 'helpButton', 'helpButtonHover', 'helpButton');
+    this.settings = this.addButton(480, 320, 'buttons', this.doSettings, this, 'settingsButtonHover', 'settingsButton', 'settingsButtonHover', 'settingsButtonHover');
+    this.help = this.addButton(480, 380, 'buttons', this.doHelp, this, 'helpButtonHover', 'helpButton', 'helpButtonHover', 'help');
+
+    console.log(this);
   },
 
   doStart: function() {
@@ -116,12 +120,16 @@ var LevelMenu = new Phaser.Class({
     var logo = this.add.sprite(400, 140, 'logo');
 
     // add tutorial and start button
-    this.exit = this.addButton(400, 420, 'buttons', this.doReturn, this, 'returnButtonHover', 'returnButton', 'returnButtonHover', 'returnButton');
-
+    this.exit = this.addButton(400, 420, 'sprites', this.doReturn, this, 'returnButtonHover', 'returnButton', 'returnButtonHover', 'returnButton');
+    this.firstLevel = this.addButton(350, 300, 'sprites', this.launchLevelOne, this, 'sprites', 'sprites', 'sprites', 'sprites');
   },
 
   doReturn: function() {
     this.scene.start('mainmenu');
+  },
+
+  launchLevelOne: function() {
+    this.scene.start('gamescene');
   }
 
 });
@@ -171,7 +179,7 @@ var ControlsMenu = new Phaser.Class({
     this.add.text(275,200,controls,headerStyle);
 
     // add tutorial and start button
-    this.exit = this.addButton(400, 420, 'buttons', this.doReturn, this, 'returnButtonHover', 'returnButton', 'returnButtonHover', 'returnButton');
+    this.exit = this.addButton(400, 420, 'sprites', this.doReturn, this, 'btn_quest_hl', 'btn_quest', 'btn_quest_hl', 'btn_quest');
   },
 
   doReturn: function() {
@@ -211,7 +219,7 @@ var SettingsMenu = new Phaser.Class({
     var logo = this.add.sprite(400, 140, 'logo');
 
     // add tutorial and start button
-    this.exit = this.addButton(400, 420, 'buttons', this.doReturn, this, 'returnButtonHover', 'returnButton', 'returnButtonHover', 'returnButton');
+    this.exit = this.addButton(400, 420, 'sprites', this.doReturn, this, 'btn_quest_hl', 'btn_quest', 'btn_quest_hl', 'btn_quest');
   },
 
   doReturn: function() {
@@ -275,7 +283,7 @@ var HelpMenu = new Phaser.Class({
     this.add.text(500,290,story,textStyle);
 
     // add tutorial and start button
-    this.exit = this.addButton(400, 420, 'buttons', this.doReturn, this, 'returnButtonHover', 'returnButton', 'returnButtonHover', 'returnButton');
+    this.exit = this.addButton(400, 420, 'sprites', this.doReturn, this, 'btn_quest_hl', 'btn_quest', 'btn_quest_hl', 'btn_quest');
   },
 
   doReturn: function() {
