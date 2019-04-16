@@ -1,5 +1,13 @@
+/* currently the only game elements added are:
+weapons: rock
+drone: level 1 drone
+package: amazon package
+*/
+
+var clock;
 var map;
 var player;
+var paused;
 
 var cursors;
 var worldLayer, boxLayer;
@@ -17,6 +25,9 @@ var diff;
 var healthpoints;
 var reticle;
 var moveKeys;
+var stacks; //will ramp up the spawnrate
+var maxSpawnRate;
+var intervalID;
 
 //class groups
 var playerBullets;
@@ -28,8 +39,9 @@ var time; //actual time
 var shotusedsingle = 1;
 var maxAmmo;
 var timescale; //time in normal form, scaled to be readable
-var onscreencap = 1; //total amount of allowed enemies onscreen, adjusts with time, difficulty, level
-var onscreencount = 0; //current amount of enemies onscreen, adjusts with time, difficulty, level
+var timeintervals;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var Bullet = new Phaser.Class({
 
@@ -73,7 +85,8 @@ var Bullet = new Phaser.Class({
     //this.rotation = target.rotation; // angle bullet with shooters rotation
     this.born = 0; // Time since new bullet spawned
 
-
+    shotusedsingle = 0;
+    text2.setText("Ammo: " + shotusedsingle);
 
 
   },
@@ -84,19 +97,22 @@ var Bullet = new Phaser.Class({
     this.x += this.xSpeed * delta;
     this.y += this.ySpeed * delta;
     this.born += delta;
+
     if (this.born > 1000) {
-      this.setActive(false);
-      this.setVisible(false);
+      //this.setActive(false);
+      //this.setVisible(false);
       shotusedsingle = 1;
       text2.setText("Ammo: " + shotusedsingle);
+      this.destroy();
 
     }
-
-
 
   }
 
 });
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 var Box = new Phaser.Class({
 
   Extends: Phaser.GameObjects.Image,
@@ -115,40 +131,45 @@ var Box = new Phaser.Class({
       this.scene = scene;
       this.worldlayer = worldLayer;
       this.setSize(14, 14, true);
-
-
-
+      this.born;
 
     },
 
 
-  collectBox: function() {
-    //boxLayer.removeTileAt(tile.x, tile.y); // remove the tile/coin
-    this.destroy();
-    score++;
-    text1.setText("Points: " + score);
-    //generates more boxes
-    return false;
-  },
+
   spawnBox: function(posx, posy) {
+    this.born = 1;
     this.setPosition(Math.floor(posx), Math.floor(posy) + 20);
-    this.body.bounce.y = 0.2;
-    this.body.setCollideWorldBounds(true);
 
-
+    //this.body.setCollideWorldBounds(true);
 
   },
 
   update: function(time, delta) {
+    if (this.born >= 1) {
+      this.born += delta;
+    }
 
+    //debugtext.setText(this.born);
+    if (this.born > 5000) {
+      //this.setActive(false);
+      //this.setVisible(false);
+      //shotusedsingle = 1;
+      //text2.setText("Ammo: "+shotusedsingle);
+      player.health--;
+      this.destroy();
 
-    this.y += this.ySpeed;
+    }
+
+    //this.y += this.ySpeed;
     //this.scene.physics.add.collider(worldLayer, this);
-    this.scene.physics.add.overlap(player, this, this.collectBox(), null, this.scene);
 
   }
 
 });
+
+///////////////////////////////////////////////////////////////////////////////
+
 var Enemy = new Phaser.Class({
 
   Extends: Phaser.GameObjects.Image,
@@ -163,13 +184,13 @@ var Enemy = new Phaser.Class({
       this.direction = 0;
       this.xSpeed = 2;
       this.ySpeed = 2;
-      this.destinationX = 150 * (Math.floor(Math.random() * 4) + 1);
+      this.destinationX = (150 + (Math.floor(Math.random() * 15) + 0)) * (Math.floor(Math.random() * 4) + 1);
       this.destinationY = 400;
       this.originX = Math.floor(Math.random() * 800) + 0;
       this.originY = Math.floor(Math.random() * 300) + 0;
       this.reachedDest = 0;
       this.scene = scene;
-      this.setSize(60, 60, true);
+      this.setSize(12, 12, true);
 
 
     },
@@ -200,26 +221,34 @@ var Enemy = new Phaser.Class({
     } else if (this.reachedDest == 1) {
       if (this.y != this.destinationY) {
         this.y += this.ySpeed;
-        this.xSpeed = 0;
+        //this.xSpeed = 0;
       }
       if (this.y >= this.destinationY) {
         this.y = this.destinationY;
         this.reachedDest = 2;
-        this.ySpeed = 0;
+        //this.ySpeed = 0;
       }
 
-      debugtext.setText(this.y);
+      //
     } else if (this.reachedDest == 2) { //has dropped the package
       var boxdrop = boxes.get().setActive(true).setVisible(true);
-      boxdrop.spawnBox(this.destinationX, this.destinationY, this.scene);
+      boxdrop.spawnBox(this.x, this.y, this.scene);
+
       this.reachedDest = 3;
     } else if (this.reachedDest == 3) { //is now returning to base
+      //this.ySpeed = 2;
+      this.y -= this.ySpeed;
+      if (this.y <= 5) {
+        this.destroy();
+      }
     }
 
     //debugtext.setText(delta);
   }
 
 });
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var GameScene = new Phaser.Class({
 
@@ -239,40 +268,49 @@ var GameScene = new Phaser.Class({
     this.load.image("tiles", "assets/tileset/custtiles1.png");
     this.load.tilemapTiledJSON('map', 'assets/tilemap/level1map.json');
     // tiles in spritesheet
-    this.load.image("bullet", "assets/sprites/atlas/stone.png")
-    this.load.image("target", "assets/sprites/atlas/reticle.png")
+    this.load.image("bullet", "assets/sprites/stone.png")
+    this.load.image("target", "assets/sprites/reticle.png")
     // simple coin image
-    this.load.image('box', 'assets/sprites/atlas/amazonpackage.png');
-    this.load.image("enemy", 'assets/sprites/atlas/drone.png')
+    this.load.image('box', 'assets/sprites/amazonpackage.png');
+    this.load.image("enemy", 'assets/sprites/drone.png')
     // player animations
     //this.load.image('player', 'assets/sprites/neighbor.png');
-    this.load.spritesheet('player', 'assets/sprites/atlas/neighborwalk.png', {
+    this.load.spritesheet('player', 'assets/sprites/neighborwalk.png', {
       frameWidth: 11,
       frameHeight: 25
     });
   },
 
-  create:function() {
+  create: function() {
     // load the map
     map = this.make.tilemap({
       key: 'map'
     });
     level = 1;
     diff = 1; //easy
+    maxSpawnRate = 5000 * diff * level;
+    stacks = 0;
+    timeintervals = [];
 
     const tileset = map.addTilesetImage("custtiles1", "tiles");
 
     //class declaring
     playerBullets = this.physics.add.group({
+      key: 'bullet',
+      gravityY: 300,
       classType: Bullet,
       runChildUpdate: true
     });
 
     boxes = this.physics.add.group({
 
+      key: 'box',
       classType: Box,
-      runChildUpdate: true
+      runChildUpdate: true,
+      gravityY: 100,
+
     });
+
     enemies = this.physics.add.group({
 
       classType: Enemy,
@@ -286,7 +324,6 @@ var GameScene = new Phaser.Class({
       'left': Phaser.Input.Keyboard.KeyCodes.A,
       'right': Phaser.Input.Keyboard.KeyCodes.D
     });
-
     worldLayer.setCollisionByProperty({
       collides: true
     });
@@ -306,6 +343,7 @@ var GameScene = new Phaser.Class({
     player.setBounce(0.2); // our player will bounce from items
     player.setCollideWorldBounds(true); // don't go out of the map
     this.physics.add.collider(worldLayer, player);
+
 
 
 
@@ -343,11 +381,11 @@ var GameScene = new Phaser.Class({
     });
     text4.setScrollFactor(0);
     //debug
-    debugtext = this.add.text(250, 570, '0', {
-      fontSize: '20px',
-      fill: '#ffffff'
+    /*debugtext = this.add.text(250, 570, '0', {
+        fontSize: '20px',
+        fill: '#ffffff'
     });
-    debugtext.setScrollFactor(0);
+    debugtext.setScrollFactor(0);*/
 
 
     // Set sprite variables
@@ -378,11 +416,33 @@ var GameScene = new Phaser.Class({
       }
     }, this);
 
-    var drone = enemies.get().setActive(true).setVisible(true);
-    drone.spawnEnemy();
+    this.input.on('pointerdown', function(pointer, time, lastFired) {
+      if (player.active === false) {
+        return;
+      }
+
+      if (shotusedsingle === 1) {
+        var bullet = playerBullets.get().setActive(true).setVisible(true);
+        if (bullet) {
+
+          bullet.fire(player, reticle);
+
+          this.physics.add.collider(bullet, enemies, this.destroyEnemy);
+          this.physics.add.collider(bullet, worldLayer);
+          shotusedsingle = 0;
+
+          text2.setText("Ammo: " + shotusedsingle);
+
+        }
+      }
+
+    }, this);
 
 
 
+    //clock.addEvent({ delay: 5000,  loop: true, callback: spawnEnemy(), callbackScope: this});
+    intervalID = window.setInterval(this.spawnEnemy, maxSpawnRate - stacks);
+    timeintervals.push(intervalID);
   },
 
   update: function(time, delta) {
@@ -428,30 +488,63 @@ var GameScene = new Phaser.Class({
     //if (score%4 == 0 && score > 0)
     //  spawnBoxes();
 
-    this.input.on('pointerdown', function(pointer, time, lastFired) {
-      if (player.active === false)
-        return;
-      if (shotusedsingle === 1) {
-        var bullet = playerBullets.get().setActive(true).setVisible(true);
-        if (bullet) {
-          shotusedsingle = 0;
-          //bullet.setBounce(0);
-          this.physics.add.collider(worldLayer, bullet);
-          bullet.fire(player, reticle);
-
-
-
-
-          text2.setText("Ammo: " + shotusedsingle);
-
-        }
-      }
-
-    }, this);
     timescale = Math.floor(time / 500);
     text3.setText("Health: " + player.health);
     text4.setText("Time: " + timescale);
+    this.physics.add.collider(boxes, worldLayer);
+    //this.physics.add.collider(boxes, player);
+    this.physics.add.overlap(player, boxes, this.collectBox, null, this);
+    if (player.health == 0) {
+      // Display word "Game Over" at center of the screen game
+      var gameOverText = this.add.text(game.config.width / 4, game.config.height / 2, 'GAME OVER', {
+        fontSize: '32px',
+        fill: '#fff'
+      });
 
+      // Set z-index just in case your text show behind the background.
+      gameOverText.setDepth(1);
+      //game.lockRender = true;
+      this.paused = 1;
+      timeintervals.forEach(function(element) {
+        clearInterval(element);
+      });
 
+      this.scene.pause();
+    }
+    //drone.spawnEnemy();
+  },
+  collectBox: function(player, box) {
+    //boxLayer.removeTileAt(tile.x, tile.y); // remove the tile/coin
+    box.destroy();
+    score++;
+    text1.setText("Points: " + score);
+    //generates more boxes
+    return false;
+  },
+  destroyEnemy: function(bullet, enemy) {
+    //boxLayer.removeTileAt(tile.x, tile.y); // remove the tile/coin
+    enemy.destroy();
+    bullet.destroy();
+    shotusedsingle = 1;
+    text2.setText("Ammo: " + shotusedsingle);
+
+    //playerBullets.get().setActive(false).setVisible(false);
+    //bullet.destroy();
+    if (stacks < maxSpawnRate - 10) {
+      stacks += 10 * diff * level;
+      if (stacks % (50 / diff) == 0) {
+        intervalID = window.setInterval(this.spawnEnemy, maxSpawnRate - stacks);
+        timeintervals.push(intervalID);
+      }
+
+    }
+    score += 5;
+    text1.setText("Points: " + score);
+    return false;
+  },
+  spawnEnemy: function() {
+    var drone = enemies.get().setActive(true).setVisible(true);
+    drone.spawnEnemy();
+    return false;
   }
 });
