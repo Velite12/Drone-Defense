@@ -65,6 +65,7 @@ var time; //actual time
 var shotusedsingle = 1;
 var maxAmmo;
 var timescale; //time in normal form, scaled to be readable
+var timeintervals;
 
 var Bullet = new Phaser.Class({
 
@@ -320,6 +321,7 @@ function create() {
     diff = 1; //easy
     maxSpawnRate = 5000*diff*level;
     stacks = 0;
+    timeintervals = [];
 
     const tileset = map.addTilesetImage("custtiles1", "tiles");
 
@@ -463,7 +465,7 @@ function create() {
     
     //clock.addEvent({ delay: 5000,  loop: true, callback: spawnEnemy(), callbackScope: this});
     intervalID = window.setInterval(spawnEnemy, maxSpawnRate-stacks);
-    
+    timeintervals.push(intervalID);
 }
 
 function update(time, delta) {   
@@ -519,7 +521,10 @@ function update(time, delta) {
         gameOverText.setDepth(1);
         //game.lockRender = true;
         this.paused = 1;
-        clearInterval(intervalID);
+        timeintervals.forEach(function(element){
+            clearInterval(element);
+        });
+        
         this.scene.pause();
             
         
@@ -550,8 +555,11 @@ function destroyEnemy (bullet, enemy) {
     //bullet.destroy();
     if(stacks < maxSpawnRate-10){
         stacks+=10*diff*level;
-        if(stacks%(50/diff) == 0)
+        if(stacks%(50/diff) == 0){
             intervalID = window.setInterval(spawnEnemy, maxSpawnRate-stacks);
+            timeintervals.push(intervalID);
+        }
+            
     }
     score+=5;
     text1.setText("Points: "+score);
