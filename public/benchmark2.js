@@ -17,9 +17,16 @@ const config = {
 
     }
 };
+/* currently the only game elements added are:
+weapons: rock
+drone: level 1 drone
+package: amazon package
+*/
+
+
 
 var game = new Phaser.Game(config);
-
+var clock;
 var map;
 var player;
 
@@ -39,6 +46,9 @@ var diff;
 var healthpoints;
 var reticle;
 var moveKeys;
+var stacks; //will ramp up the spawnrate
+var maxSpawnRate;
+var intervalID;
 
 //class groups
 var playerBullets;
@@ -48,11 +58,8 @@ var boxes;
 
 var time; //actual time
 var shotusedsingle = 1;
-var bullet;
 var maxAmmo;
 var timescale; //time in normal form, scaled to be readable
-var onscreencap = 1; //total amount of allowed enemies onscreen, adjusts with time, difficulty, level
-var onscreencount = 0; //current amount of enemies onscreen, adjusts with time, difficulty, level
 
 var Bullet = new Phaser.Class({
 
@@ -101,7 +108,8 @@ var Bullet = new Phaser.Class({
         //this.rotation = target.rotation; // angle bullet with shooters rotation
         this.born = 0; // Time since new bullet spawned
         
-        
+        shotusedsingle = 0;
+        text2.setText("Ammo: "+shotusedsingle);
         
         
     },
@@ -113,14 +121,18 @@ var Bullet = new Phaser.Class({
         this.x += this.xSpeed * delta;
         this.y += this.ySpeed * delta;
         this.born += delta;
+        
         if (this.born > 1000)
         {
-            this.setActive(false);
-            this.setVisible(false);
+            //this.setActive(false);
+            //this.setVisible(false);
             shotusedsingle = 1;
             text2.setText("Ammo: "+shotusedsingle);
+            this.destroy();
             
         }
+        
+
 
 
 
@@ -146,6 +158,7 @@ var Box = new Phaser.Class({
         this.scene = scene;
         this.worldlayer = worldLayer;
         this.setSize(14, 14, true);
+        this.born;
         
        
         
@@ -155,6 +168,7 @@ var Box = new Phaser.Class({
     
      
     spawnBox: function (posx, posy){
+        this.born = 0;
         this.setPosition(Math.floor(posx), Math.floor(posy)+20);
         
         //this.body.setCollideWorldBounds(true);
@@ -165,7 +179,17 @@ var Box = new Phaser.Class({
 
     update: function (time, delta)
     {
-        
+        this.born += delta;
+        //debugtext.setText(this.born);
+        if (this.born > 5000)
+        {
+            //this.setActive(false);
+            //this.setVisible(false);
+            //shotusedsingle = 1;
+            //text2.setText("Ammo: "+shotusedsingle);
+            this.destroy();
+            
+        }
         
         //this.y += this.ySpeed;
         //this.scene.physics.add.collider(worldLayer, this);
@@ -190,13 +214,13 @@ var Enemy = new Phaser.Class({
         this.direction = 0;
         this.xSpeed = 2;
         this.ySpeed = 2;
-        this.destinationX = 150*(Math.floor(Math.random() * 4) + 1);
+        this.destinationX = (150+(Math.floor(Math.random() * 15) + 0))*(Math.floor(Math.random() * 4) + 1);
         this.destinationY = 400;
         this.originX = Math.floor(Math.random() * 800) + 0;
         this.originY = Math.floor(Math.random() * 300) + 0;
         this.reachedDest = 0;
         this.scene = scene;
-        this.setSize(60, 60, true);
+        this.setSize(12, 12, true);
         
         
     },
@@ -238,7 +262,7 @@ var Enemy = new Phaser.Class({
                 //this.ySpeed = 0;
             }
             
-            debugtext.setText(this.y);
+            //
         }
         else if (this.reachedDest == 2){ //has dropped the package
             var boxdrop = boxes.get().setActive(true).setVisible(true);
@@ -276,16 +300,23 @@ function preload() {
 }
 
 function create() {
+    
+
+
+
+
     // load the map 
     map = this.make.tilemap({key: 'map'});
     level = 1; 
     diff = 1; //easy
+    maxSpawnRate = 5000*diff*level;
+    stacks = 0;
 
     const tileset = map.addTilesetImage("custtiles1", "tiles");
 
     //class declaring
     playerBullets = this.physics.add.group({
-        key: 'bullet' ,classType: Bullet, runChildUpdate: true });
+        key: 'bullet' ,gravityY: 300,classType: Bullet, runChildUpdate: true });
 
     boxes = this.physics.add.group({
 
@@ -360,11 +391,11 @@ function create() {
     });
     text4.setScrollFactor(0);
     //debug
-    debugtext = this.add.text(250, 570, '0', {
+    /*debugtext = this.add.text(250, 570, '0', {
         fontSize: '20px',
         fill: '#ffffff'
     });
-    debugtext.setScrollFactor(0);
+    debugtext.setScrollFactor(0);*/
 
 
     // Set sprite variables
@@ -396,13 +427,31 @@ function create() {
         }
     }, this);
     
-    var drone = enemies.get().setActive(true).setVisible(true);
-    drone.spawnEnemy();
+    this.input.on('pointerdown', function (pointer, time, lastFired) {
+        if (player.active === false){
+            return;
+        }
+        
+        if (shotusedsingle === 1){
+            var bullet = playerBullets.get().setActive(true).setVisible(true);    
+            if (bullet)
+            {
+                
+                bullet.fire(player, reticle);
+                
+                this.physics.add.collider(bullet, enemies, destroyEnemy);
+                shotusedsingle = 0;
+                
+                text2.setText("Ammo: "+shotusedsingle);
+                
+            }
+        }
+        
+    }, this);
     
-
+    //clock.addEvent({ delay: 5000,  loop: true, callback: spawnEnemy(), callbackScope: this});
+    intervalID = window.setInterval(spawnEnemy, maxSpawnRate-stacks);
     
-    
-
 }
 
 function update(time, delta) {   
@@ -442,33 +491,18 @@ function update(time, delta) {
     //if (score%4 == 0 && score > 0)
       //  spawnBoxes(); 
     
-    this.input.on('pointerdown', function (pointer, time, lastFired) {
-        
-        if (shotusedsingle === 1){
-            bullet = playerBullets.get().setActive(true).setVisible(true);
-            if (bullet)
-            {
-                shotusedsingle = 0;
-                //bullet.setBounce(0);
-                //this.physics.add.collider(worldLayer, bullet);
-                bullet.fire(player, reticle);
-                
-                
-                
-                
-                text2.setText("Ammo: "+shotusedsingle);
-                
-            }
-        }
-        
-    }, this);
-    this.physics.add.overlap(bullet, enemies, destroyEnemy, null, this);
+   
+    
     timescale = Math.floor(time/500);
     text3.setText("Health: "+player.health);
     text4.setText("Time: "+ timescale);
     this.physics.add.collider(boxes, worldLayer);
     //this.physics.add.collider(boxes, player);
     this.physics.add.overlap(player, boxes, collectBox, null, this);
+    
+    //drone.spawnEnemy();
+    
+    
     
     
 }
@@ -484,9 +518,25 @@ function destroyEnemy (bullet, enemy) {
     //boxLayer.removeTileAt(tile.x, tile.y); // remove the tile/coin
     enemy.destroy();
     bullet.destroy();
+    shotusedsingle = 1;
+    text2.setText("Ammo: "+shotusedsingle);
+    
+    //playerBullets.get().setActive(false).setVisible(false);
+    //bullet.destroy();
+    if(stacks < maxSpawnRate-10){
+        stacks+=10*diff*level;
+        if(stacks%(50/diff) == 0)
+            intervalID = window.setInterval(spawnEnemy, maxSpawnRate-stacks);
+    }
     score+=5;
     text1.setText("Points: "+score);
-    //generates more boxes
+    return false;
+}
+function spawnEnemy(){
+    var drone = enemies.get().setActive(true).setVisible(true);
+    drone.spawnEnemy();
+    
+    
     return false;
 }
 

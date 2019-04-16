@@ -26,40 +26,11 @@
         border-radius: 5px;
       }
     </style>
-    <script src="//cdn.jsdelivr.net/npm/phaser@3.16.2/dist/phaser.js"></script>
-    <script src="./benchmark2/phaser_addon.js"></script>
-    <script src="./benchmark2/benchmark2.js"></script>
-    <script src="./benchmark2/mainmenu.js"></script>
-    <script src="./benchmark2/preloader.js"></script>
-    <script src="./benchmark2/boot.js"></script>
   </head>
 
   <body>
     <div id="game-container"></div>
-    <script>
-    const config = {
-        type: Phaser.AUTO,
-        width: 800,
-        height: 600,
-        parent: 'phaser-example',
-        physics: {
-            default: 'arcade',
-            arcade: {
-                gravity: {y: 0},
-                debug: false
-            }
-        },
-        // scene: {
-        //     key: 'main',
-        //     preload: preload,
-        //     create: create,
-        //     update: update
-        //
-        // }
-        scene:[Boot,Preloader, MainMenu, LevelMenu, ControlsMenu, SettingsMenu, HelpMenu, GameScene]
-    };
-
-    var game = new Phaser.Game(config);
-    </script>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.16.2/dist/phaser.js"></script>
+    <script src="./benchmark2.js" type="module"></script>
   </body>
 </html>
