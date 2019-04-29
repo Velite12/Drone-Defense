@@ -45,7 +45,8 @@ var MainMenu = new Phaser.Class({
     window.location.hash = "mainmenu";
     this.load.image("tiles", "assets/tileset/custtiles1.png");
     this.load.image("logo", "assets/branding/logo.png");
-    this.load.spritesheet("buttonSpriteSheet", "assets/sprites/buttons/buttonSpriteSheet.png", 128, 128);
+    this.load.spritesheet("buttonSpriteSheet", "assets/sprites/buttons/buttonSpriteSheet.png", {frameWidth: 128, frameHeight: 128});
+
     this.load.tilemapTiledJSON('map', 'assets/tilemap/level1map.json');
     this.load.atlas('buttons', 'assets/buttons/buttons.png', 'assets/buttons/buttons.json');
   },
