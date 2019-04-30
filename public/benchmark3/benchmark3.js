@@ -65,8 +65,6 @@ var Bullet = new Phaser.Class({
   // Fires a bullet from the player to the reticle
   fire: function(shooter, target) {
 
-    this.sound.add('bullet').play();
-
     this.setPosition(shooter.x, shooter.y - 15); // Initial position
     this.direction = Math.atan((target.x - this.x) / (target.y - this.y));
     this.body.setAllowGravity(true);
@@ -272,7 +270,7 @@ var GameScene1 = new Phaser.Class({
     this.load.audio('bullet', ['assets/audio/rock.mp3', 'assets/audio/rock.ogg']);
     this.load.audio('box', ['assets/audio/box.mp3', 'assets/audio/box.ogg']);
     this.load.audio('end', ['assets/audio/end.mp3', 'assets/audio/end.ogg']);
-    
+
 
     // map made with Tiled in JSON format
     this.load.image("tiles", "assets/tileset/custtiles1.png");
@@ -547,6 +545,7 @@ function create() {
       var bullet = playerBullets.get().setActive(true).setVisible(true);
       if (bullet) {
 
+        this.sound.add('bullet').play();
         bullet.fire(player, reticle);
 
         this.physics.add.collider(bullet, enemies, this.destroyEnemy);
