@@ -447,7 +447,6 @@ function create() {
   worldLayer = map.createDynamicLayer("BackLayer", tileset, 0, 0);
 
   moveKeys = this.input.keyboard.addKeys({
-
     'left': Phaser.Input.Keyboard.KeyCodes.A,
     'right': Phaser.Input.Keyboard.KeyCodes.D
   });
@@ -530,6 +529,74 @@ function create() {
   this.input.keyboard.on('keydown_Q', function(event) {
     if (game.input.mouse.locked)
       game.input.mouse.releasePointerLock();
+  }, 0, this);
+
+  this.input.keyboard.on('keydown_ZERO', function(event) {
+    switch(level){
+      case 1:
+        music1.stop();
+        break;
+      case 2:
+        music2.stop();
+        break;
+      case 3:
+        music3.stop();
+        break;
+    }
+
+    window.location.hash = 'mainmenu';
+    location.reload();
+  }, 0, this);
+
+  this.input.keyboard.on('keydown_ONE', function(event) {
+    switch(level){
+      case 1:
+        music1.stop();
+        break;
+      case 2:
+        music2.stop();
+        break;
+      case 3:
+        music3.stop();
+        break;
+    }
+
+    window.location.hash = 'gamescene1';
+    location.reload();
+  }, 0, this);
+
+  this.input.keyboard.on('keydown_TWO', function(event) {
+    switch(level){
+      case 1:
+        music1.stop();
+        break;
+      case 2:
+        music2.stop();
+        break;
+      case 3:
+        music3.stop();
+        break;
+    }
+
+    window.location.hash = 'gamescene2';
+    location.reload();
+  }, 0, this);
+
+  this.input.keyboard.on('keydown_THREE', function(event) {
+    switch(level){
+      case 1:
+        music1.stop();
+        break;
+      case 2:
+        music2.stop();
+        break;
+      case 3:
+        music3.stop();
+        break;
+    }
+
+    window.location.hash = 'gamescene3';
+    location.reload();
   }, 0, this);
 
   // Move reticle upon locked pointer move
@@ -670,7 +737,7 @@ function collectBox(player, box) {
 function destroyEnemy(bullet, enemy) {
     //boxLayer.removeTileAt(tile.x, tile.y); // remove the tile/coin
     game.sound.add('bullet').play();
-    
+
     enemy.destroy();
     bullet.destroy();
     shotusedsingle = 1;
