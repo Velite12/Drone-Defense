@@ -264,6 +264,8 @@ var GameScene1 = new Phaser.Class({
 
   preload: function() {
     window.location.hash = "gamescene1";
+
+    this.load.audio('bgmusic', ['assets/audio/lvl1.mp3', 'assets/audio/lvl1.ogg']);
     // map made with Tiled in JSON format
     this.load.image("tiles", "assets/tileset/custtiles1.png");
     this.load.tilemapTiledJSON('map', 'assets/tilemap/level1map.json');
@@ -302,6 +304,8 @@ var GameScene2 = new Phaser.Class({
 
   preload: function() {
     window.location.hash = "gamescene2";
+
+    this.load.audio('bgmusic', ['assets/audio/lvl2.mp3', 'assets/audio/lvl2.ogg']);
     // map made with Tiled in JSON format
     this.load.image("tiles", "assets/tileset/custtiles1.png");
     this.load.tilemapTiledJSON('map', 'assets/tilemap/level1map.json');
@@ -340,6 +344,8 @@ var GameScene3 = new Phaser.Class({
 
   preload: function() {
     window.location.hash = "gamescene3";
+
+    this.load.audio('bgmusic', ['assets/audio/lvl3.mp3', 'assets/audio/lvl3.ogg']);
     // map made with Tiled in JSON format
     this.load.image("tiles", "assets/tileset/custtiles1.png");
     this.load.tilemapTiledJSON('map', 'assets/tilemap/level1map.json');
@@ -375,6 +381,10 @@ function create() {
   timeintervals = [];
 
   const tileset = map.addTilesetImage("custtiles1", "tiles");
+
+  music = this.sound.add('bgmusic');
+  music.setLoop(true);
+  music.play();
 
   //class declaring
   playerBullets = this.physics.add.group({

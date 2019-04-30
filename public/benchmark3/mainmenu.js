@@ -43,6 +43,7 @@ var MainMenu = new Phaser.Class({
   preload: function() {
     // map made with Tiled in JSON format
     window.location.hash = "mainmenu";
+    this.load.audio('bgmusic', ['assets/audio/menu.mp3', 'assets/audio/menu.ogg']);
     this.load.image("tiles", "assets/tileset/custtiles1.png");
     this.load.image("logo", "assets/branding/logo.png");
     this.load.spritesheet("buttonSpriteSheet", "assets/sprites/buttons/buttonSpriteSheet.png", {frameWidth: 128, frameHeight: 128});
@@ -59,6 +60,10 @@ var MainMenu = new Phaser.Class({
 
     const tileset = map.addTilesetImage("custtiles1", "tiles");
     worldLayer = map.createDynamicLayer("BackLayer", tileset, 0, 0);
+
+    music = this.sound.add('bgmusic');
+    music.setLoop(true);
+    music.play();
 
     var logo = this.add.sprite(400, 140, 'logo');
     this.newgame = this.addButton(400, 260, 'buttons', this.doStart, this, 'newGameButtonHover', 'newGameButton', 'newGameButtonHover', 'controlsButton');
