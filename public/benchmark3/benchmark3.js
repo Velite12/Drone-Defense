@@ -270,7 +270,7 @@ var GameScene1 = new Phaser.Class({
     this.load.audio('bullet', ['assets/audio/rock.mp3', 'assets/audio/rock.ogg']);
     this.load.audio('box', ['assets/audio/box.mp3', 'assets/audio/box.ogg']);
     this.load.audio('end', ['assets/audio/end.mp3', 'assets/audio/end.ogg']);
-
+    this.load.audio('sad', ['assets/audio/sad.mp3', 'assets/audio/sad.ogg']);
 
     // map made with Tiled in JSON format
     this.load.image("tiles", "assets/tileset/custtiles1.png");
@@ -316,7 +316,7 @@ var GameScene2 = new Phaser.Class({
     this.load.audio('bullet', ['assets/audio/rock.mp3', 'assets/audio/rock.ogg']);
     this.load.audio('box', ['assets/audio/box.mp3', 'assets/audio/box.ogg']);
     this.load.audio('end', ['assets/audio/end.mp3', 'assets/audio/end.ogg']);
-
+    this.load.audio('sad', ['assets/audio/sad.mp3', 'assets/audio/sad.ogg']);
 
     // map made with Tiled in JSON format
     this.load.image("tiles", "assets/tileset/custtiles1.png");
@@ -362,6 +362,7 @@ var GameScene3 = new Phaser.Class({
     this.load.audio('bullet', ['assets/audio/rock.mp3', 'assets/audio/rock.ogg']);
     this.load.audio('box', ['assets/audio/box.mp3', 'assets/audio/box.ogg']);
     this.load.audio('end', ['assets/audio/end.mp3', 'assets/audio/end.ogg']);
+    this.load.audio('sad', ['assets/audio/sad.mp3', 'assets/audio/sad.ogg']);
 
     // map made with Tiled in JSON format
     this.load.image("tiles", "assets/tileset/custtiles1.png");
@@ -628,9 +629,25 @@ function update(time, delta) {
         clearInterval(element);
       });
 
+      switch(level){
+        case 1:
+          music1.stop();
+          break;
+        case 2:
+          music2.stop();
+          break;
+        case 3:
+          music3.stop();
+          break;
+      }
+
       musicEnd= this.sound.add('end');
+      musicEnd1= this.sound.add('sad');
       musicEnd.setLoop(true);
+      musicEnd1.setLoop(true);
       musicEnd.play();
+      musicEnd1.play();
+
 
       this.scene.pause();
     }
