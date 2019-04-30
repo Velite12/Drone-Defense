@@ -669,7 +669,8 @@ function collectBox(player, box) {
 
 function destroyEnemy(bullet, enemy) {
     //boxLayer.removeTileAt(tile.x, tile.y); // remove the tile/coin
-    this.sound.add('smash').play();
+    game.sound.add('bullet').play();
+    
     enemy.destroy();
     bullet.destroy();
     shotusedsingle = 1;
