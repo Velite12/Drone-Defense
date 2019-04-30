@@ -65,6 +65,8 @@ var Bullet = new Phaser.Class({
   // Fires a bullet from the player to the reticle
   fire: function(shooter, target) {
 
+    this.sound.add('bullet').play();
+
     this.setPosition(shooter.x, shooter.y - 15); // Initial position
     this.direction = Math.atan((target.x - this.x) / (target.y - this.y));
     this.body.setAllowGravity(true);
@@ -267,6 +269,11 @@ var GameScene1 = new Phaser.Class({
     window.location.hash = "gamescene1";
 
     this.load.audio('bgmusic1', ['assets/audio/lvl1.mp3', 'assets/audio/lvl1.ogg']);
+    this.load.audio('bullet', ['assets/audio/rock.mp3', 'assets/audio/rock.ogg']);
+    this.load.audio('box', ['assets/audio/box.mp3', 'assets/audio/box.ogg']);
+    this.load.audio('end', ['assets/audio/end.mp3', 'assets/audio/end.ogg']);
+    
+
     // map made with Tiled in JSON format
     this.load.image("tiles", "assets/tileset/custtiles1.png");
     this.load.tilemapTiledJSON('map', 'assets/tilemap/level1map.json');
@@ -308,6 +315,11 @@ var GameScene2 = new Phaser.Class({
     window.location.hash = "gamescene2";
 
     this.load.audio('bgmusic2', ['assets/audio/lvl2.mp3', 'assets/audio/lvl2.ogg']);
+    this.load.audio('bullet', ['assets/audio/rock.mp3', 'assets/audio/rock.ogg']);
+    this.load.audio('box', ['assets/audio/box.mp3', 'assets/audio/box.ogg']);
+    this.load.audio('end', ['assets/audio/end.mp3', 'assets/audio/end.ogg']);
+
+
     // map made with Tiled in JSON format
     this.load.image("tiles", "assets/tileset/custtiles1.png");
     this.load.tilemapTiledJSON('map', 'assets/tilemap/level1map.json');
@@ -349,6 +361,10 @@ var GameScene3 = new Phaser.Class({
     window.location.hash = "gamescene3";
 
     this.load.audio('bgmusic3', ['assets/audio/lvl3.mp3', 'assets/audio/lvl3.ogg']);
+    this.load.audio('bullet', ['assets/audio/rock.mp3', 'assets/audio/rock.ogg']);
+    this.load.audio('box', ['assets/audio/box.mp3', 'assets/audio/box.ogg']);
+    this.load.audio('end', ['assets/audio/end.mp3', 'assets/audio/end.ogg']);
+
     // map made with Tiled in JSON format
     this.load.image("tiles", "assets/tileset/custtiles1.png");
     this.load.tilemapTiledJSON('map', 'assets/tilemap/level1map.json');
@@ -613,6 +629,10 @@ function update(time, delta) {
         clearInterval(element);
       });
 
+      musicEnd= this.sound.add('end');
+      musicEnd.setLoop(true);
+      musicEnd.play();
+
       this.scene.pause();
     }
     //drone.spawnEnemy();
@@ -620,6 +640,7 @@ function update(time, delta) {
 
 function collectBox(player, box) {
   //boxLayer.removeTileAt(tile.x, tile.y); // remove the tile/coin
+  this.sound.add('bullet').play();
   box.destroy();
   score++;
   text1.setText("Points: " + score);
