@@ -271,6 +271,7 @@ var GameScene1 = new Phaser.Class({
     this.load.audio('box', ['assets/audio/box.mp3', 'assets/audio/box.ogg']);
     this.load.audio('end', ['assets/audio/end.mp3', 'assets/audio/end.ogg']);
     this.load.audio('sad', ['assets/audio/sad.mp3', 'assets/audio/sad.ogg']);
+    this.load.audio('smash', ['assets/audio/smash.mp3', 'assets/audio/smash.ogg']);
 
     // map made with Tiled in JSON format
     this.load.image("tiles", "assets/tileset/custtiles1.png");
@@ -317,6 +318,7 @@ var GameScene2 = new Phaser.Class({
     this.load.audio('box', ['assets/audio/box.mp3', 'assets/audio/box.ogg']);
     this.load.audio('end', ['assets/audio/end.mp3', 'assets/audio/end.ogg']);
     this.load.audio('sad', ['assets/audio/sad.mp3', 'assets/audio/sad.ogg']);
+    this.load.audio('smash', ['assets/audio/smash.mp3', 'assets/audio/smash.ogg']);
 
     // map made with Tiled in JSON format
     this.load.image("tiles", "assets/tileset/custtiles1.png");
@@ -363,6 +365,7 @@ var GameScene3 = new Phaser.Class({
     this.load.audio('box', ['assets/audio/box.mp3', 'assets/audio/box.ogg']);
     this.load.audio('end', ['assets/audio/end.mp3', 'assets/audio/end.ogg']);
     this.load.audio('sad', ['assets/audio/sad.mp3', 'assets/audio/sad.ogg']);
+    this.load.audio('smash', ['assets/audio/smash.mp3', 'assets/audio/smash.ogg']);
 
     // map made with Tiled in JSON format
     this.load.image("tiles", "assets/tileset/custtiles1.png");
@@ -666,6 +669,7 @@ function collectBox(player, box) {
 
 function destroyEnemy(bullet, enemy) {
     //boxLayer.removeTileAt(tile.x, tile.y); // remove the tile/coin
+    this.sound.add('smash').play();
     enemy.destroy();
     bullet.destroy();
     shotusedsingle = 1;
