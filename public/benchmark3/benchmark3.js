@@ -686,7 +686,7 @@ function update(time, delta) {
     this.physics.add.overlap(player, boxes, this.collectBox, null, this);
     if (player.health == 0) {
       // Display word "Game Over" at center of the screen game
-      var gameOverText = this.add.text(game.config.width / 4, game.config.height / 2, 'GAME OVER', {
+      var gameOverText = this.add.text(game.config.width / 4, game.config.height / 2, 'GAME OVER\n Press Ctrl+R to restart', {
         fontSize: '32px',
         fill: '#fff'
       });

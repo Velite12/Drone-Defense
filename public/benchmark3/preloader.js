@@ -2,7 +2,7 @@
 // preloader and loading bar
 
 var Preloader = new Phaser.Class({
-
+	
 	Extends: Phaser.Scene,
 
 	initialize:
@@ -72,18 +72,22 @@ var Preloader = new Phaser.Class({
 		this.loadingbar_bg.destroy();
 		this.loadingbar_fill.destroy();
 		this.preloadSprite = null;
-
+		
 		if(window.location.hash){
-		// start actual game
-		console.log()
-		if(this.scene.getIndex(window.location.hash.slice(1)) != -1){
-			this.scene.start(''+window.location.hash.slice(1)+'');
-		}else{
+			// start actual game
+			console.log()
+			if(this.scene.getIndex(window.location.hash.slice(1)) != -1){
+				this.scene.start(''+window.location.hash.slice(1)+'');
+			}
+			else{
+				
+				this.scene.start('mainmenu');
+			}
+		}
+		else{
+				
 			this.scene.start('mainmenu');
 		}
-	}else{
-		this.scene.start('mainmenu');
-	}
 
 	}
 });
