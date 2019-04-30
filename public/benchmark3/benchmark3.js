@@ -263,9 +263,10 @@ var GameScene1 = new Phaser.Class({
     },
 
   preload: function() {
+    level = 1;
     window.location.hash = "gamescene1";
 
-    this.load.audio('bgmusic', ['assets/audio/lvl1.mp3', 'assets/audio/lvl1.ogg']);
+    this.load.audio('bgmusic1', ['assets/audio/lvl1.mp3', 'assets/audio/lvl1.ogg']);
     // map made with Tiled in JSON format
     this.load.image("tiles", "assets/tileset/custtiles1.png");
     this.load.tilemapTiledJSON('map', 'assets/tilemap/level1map.json');
@@ -303,9 +304,10 @@ var GameScene2 = new Phaser.Class({
     },
 
   preload: function() {
+    level = 2;
     window.location.hash = "gamescene2";
 
-    this.load.audio('bgmusic', ['assets/audio/lvl2.mp3', 'assets/audio/lvl2.ogg']);
+    this.load.audio('bgmusic2', ['assets/audio/lvl2.mp3', 'assets/audio/lvl2.ogg']);
     // map made with Tiled in JSON format
     this.load.image("tiles", "assets/tileset/custtiles1.png");
     this.load.tilemapTiledJSON('map', 'assets/tilemap/level1map.json');
@@ -343,9 +345,10 @@ var GameScene3 = new Phaser.Class({
     },
 
   preload: function() {
+    level = 3;
     window.location.hash = "gamescene3";
 
-    this.load.audio('bgmusic', ['assets/audio/lvl3.mp3', 'assets/audio/lvl3.ogg']);
+    this.load.audio('bgmusic3', ['assets/audio/lvl3.mp3', 'assets/audio/lvl3.ogg']);
     // map made with Tiled in JSON format
     this.load.image("tiles", "assets/tileset/custtiles1.png");
     this.load.tilemapTiledJSON('map', 'assets/tilemap/level1map.json');
@@ -382,9 +385,23 @@ function create() {
 
   const tileset = map.addTilesetImage("custtiles1", "tiles");
 
-  music = this.sound.add('bgmusic');
-  music.setLoop(true);
-  music.play();
+  switch(level){
+    case 1:
+      music1= this.sound.add('bgmusic1');
+      music1.setLoop(true);
+      music1.play();
+      break;
+    case 2:
+      music2 = this.sound.add('bgmusic2');
+      music2.setLoop(true);
+      music2.play();
+      break;
+    case 3:
+      music3 = this.sound.add('bgmusic3');
+      music3.setLoop(true);
+      music3.play();
+      break;
+  }
 
   //class declaring
   playerBullets = this.physics.add.group({

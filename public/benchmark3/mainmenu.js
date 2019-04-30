@@ -74,6 +74,7 @@ var MainMenu = new Phaser.Class({
   },
 
   doStart: function() {
+    music.stop()
     this.scene.start('gamescene1');
   },
 
@@ -137,14 +138,17 @@ var LevelMenu = new Phaser.Class({
   },
 
   launchLevelOne: function() {
+    music.stop()
     this.scene.start('gamescene1');
   },
 
   launchLevelTwo: function() {
+    music.stop()
     this.scene.start('gamescene2');
   },
 
   launchLevelThree: function() {
+    music.stop()
     this.scene.start('gamescene3');
   }
 
