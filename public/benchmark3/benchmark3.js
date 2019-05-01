@@ -28,6 +28,7 @@ var moveKeys;
 var stacks; //will ramp up the spawnrate
 var maxSpawnRate;
 var intervalID;
+var invincibility = false;
 
 //class groups
 var playerBullets;
@@ -130,6 +131,8 @@ var Box = new Phaser.Class({
       this.ySpeed = 2;
       this.scene = scene;
       this.worldlayer = worldLayer;
+      this.invinc = false;
+      console.log(this.invinc);
       this.setSize(14, 14, true);
       this.born;
 
@@ -137,10 +140,10 @@ var Box = new Phaser.Class({
 
 
 
-  spawnBox: function(posx, posy) {
+  spawnBox: function(posx, posy, invinc) {
     this.born = 1;
     this.setPosition(Math.floor(posx), Math.floor(posy) + 20);
-
+    this.invinc = invinc;
     //this.body.setCollideWorldBounds(true);
 
   },
@@ -156,7 +159,10 @@ var Box = new Phaser.Class({
       //this.setVisible(false);
       //shotusedsingle = 1;
       //text2.setText("Ammo: "+shotusedsingle);
-      player.health--;
+      if (!this.invinc){
+        player.health--;
+      }
+      
       this.destroy();
 
     }
@@ -184,6 +190,7 @@ var Enemy = new Phaser.Class({
       this.direction = 0;
       this.xSpeed = 2;
       this.ySpeed = 2;
+      this.invinc = false;
       this.destinationX = (150 + (Math.floor(Math.random() * 15) + 0)) * (Math.floor(Math.random() * 4) + 1);
       this.destinationY = 400;
       this.originX = Math.floor(Math.random() * 800) + 0;
@@ -195,7 +202,8 @@ var Enemy = new Phaser.Class({
 
     },
 
-  spawnEnemy: function() {
+  spawnEnemy: function(invincibility) {
+    this.invinc = invincibility;
     this.setPosition(this.originX, this.originY);
 
 
@@ -232,7 +240,7 @@ var Enemy = new Phaser.Class({
       //
     } else if (this.reachedDest == 2) { //has dropped the package
       var boxdrop = boxes.get().setActive(true).setVisible(true);
-      boxdrop.spawnBox(this.x, this.y, this.scene);
+      boxdrop.spawnBox(this.x, this.y, this.invinc);
 
       this.reachedDest = 3;
     } else if (this.reachedDest == 3) { //is now returning to base
@@ -531,6 +539,19 @@ function create() {
       game.input.mouse.releasePointerLock();
   }, 0, this);
 
+  //toggle invincibility
+  this.input.keyboard.on('keydown_I', function(event) {
+    if (invincibility)
+      invincibility = false;
+      
+    else{
+      invincibility = true;
+      player.health = 3;
+    }
+      
+    console.log("invincibility: ",invincibility);
+  }, 0, this);
+
   this.input.keyboard.on('keydown_ZERO', function(event) {
     switch(level){
       case 1:
@@ -747,8 +768,9 @@ function destroyEnemy(bullet, enemy) {
     //bullet.destroy();
     if (stacks < maxSpawnRate - 10) {
       stacks += 10 * diff * level;
-      if (stacks % (50 / diff) == 0) {
+      if (stacks % (20 / diff) == 0) {
         intervalID = window.setInterval(this.spawnEnemy, maxSpawnRate - stacks);
+        console.log("new wave added");
         timeintervals.push(intervalID);
       }
 
@@ -760,6 +782,6 @@ function destroyEnemy(bullet, enemy) {
 
 function spawnEnemy(){
   var drone = enemies.get().setActive(true).setVisible(true);
-  drone.spawnEnemy();
+  drone.spawnEnemy(invincibility);
   return false;
 }
