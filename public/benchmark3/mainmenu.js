@@ -46,7 +46,7 @@ var MainMenu = new Phaser.Class({
     window.location.hash = "mainmenu";
     this.load.audio('bgmusic', ['assets/audio/menu.mp3', 'assets/audio/menu.ogg']);
     this.load.image("tiles", "assets/tileset/custtiles1.png");
-    this.load.image("logo", "assets/branding/logo.png");
+    this.load.image("logo", "assets/branding/logo.png"); 
     this.load.spritesheet("buttonSpriteSheet", "assets/sprites/buttons/buttonSpriteSheet.png", {frameWidth: 128, frameHeight: 128});
 
     this.load.tilemapTiledJSON('map', 'assets/tilemap/level1map.json');
