@@ -1,18 +1,15 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Welcome to Firebase Hosting</title>
 
-    <!-- update the version number as needed -->
     <script defer src="/__/firebase/5.9.3/firebase-app.js"></script>
-    <!-- include only the Firebase features as you need -->
     <script defer src="/__/firebase/5.9.3/firebase-auth.js"></script>
     <script defer src="/__/firebase/5.9.3/firebase-database.js"></script>
     <script defer src="/__/firebase/5.9.3/firebase-messaging.js"></script>
     <script defer src="/__/firebase/5.9.3/firebase-storage.js"></script>
-    <!-- initialize the SDK after all desired features are loaded -->
     <script defer src="/__/firebase/init.js"></script>
 
     <style media="screen">
@@ -37,5 +34,68 @@
       <a href="benchmark2.html">Benchmark 2</a>
       <div></div>
       <a href="benchmark3.html">Benchmark 3</a>
+  </body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Return To Sender</title>
+
+    <style>
+      html,
+      body,
+      #game-container {
+        margin: 0;
+        padding: 0;
+      }
+
+      #game-container {
+        min-width: 1vw;
+        min-height: 1vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #game-container > canvas {
+        border-radius: 5px;
+      }
+    </style>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.16.2/dist/phaser.js"></script>
+    <script src="./benchmark3/phaser_addon.js"></script>
+    <script src="./benchmark3/benchmark3.js"></script>
+    <script src="./benchmark3/mainmenu.js"></script>
+    <script src="./benchmark3/preloader.js"></script>
+    <script src="./benchmark3/boot.js"></script>
+  </head>
+
+  <body>
+    <div id="game-container"></div>
+    <script>
+    const config = {
+        type: Phaser.AUTO,
+        width: 800,
+        height: 600,
+        parent: 'phaser-example',
+        physics: {
+            default: 'arcade',
+            arcade: {
+                gravity: {y: 0},
+                debug: false
+            }
+        },
+        audio: {
+            disableWebAudio: false,
+            noAudio: false
+        },
+        scene:[Boot,Preloader, MainMenu, LevelMenu, ControlsMenu, SettingsMenu, HelpMenu, GameScene1, GameScene2, GameScene3]
+    };
+
+    var game = new Phaser.Game(config);
+    </script>
   </body>
 </html>
