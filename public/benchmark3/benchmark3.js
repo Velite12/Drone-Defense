@@ -659,42 +659,92 @@ function create() {
 function update(time, delta) {
     const anims = this.anims;
     if (cursors.left.isDown) {
-      anims.create({
-        key: 'walk',
-        frames: anims.generateFrameNumbers('player', {
-          start: 1,
-          end: 4
-        }),
-        frameRate: 10,
-        repeat: -1
-      });
-      player.body.setVelocityX(-200); // move left
-      player.anims.play('walk', true); // play walk animation
-      player.flipX = true; // flip the sprite to the left
+      if (this.game.input.pointers[0].isDown) {
+        anims.create({
+          key: 'walkshoot',
+          frames: anims.generateFrameNumbers('player', {
+            start: 5,
+            end: 9
+          }),
+          frameRate: 10,
+          repeat: -1
+        });
+        player.body.setVelocityX(-175); // move left
+        player.anims.play('walkshoot', true); // play walk animation
+        player.flipX = true; // flip the sprite to the left
+      }
+      else{
+        anims.create({
+          key: 'walk',
+          frames: anims.generateFrameNumbers('player', {
+            start: 1,
+            end: 4
+          }),
+          frameRate: 10,
+          repeat: -1
+        });
+        player.body.setVelocityX(-175); // move left
+        player.anims.play('walk', true); // play walk animation
+        player.flipX = true; // flip the sprite to the left
+      }
+      
     } else if (cursors.right.isDown) {
-      anims.create({
-        key: 'walk',
-        frames: anims.generateFrameNumbers('player', {
-          start: 1,
-          end: 4
-        }),
-        frameRate: 10,
-        repeat: -1
-      });
-      player.body.setVelocityX(200); // move right
-      player.anims.play('walk', true); // play walk animatio
-      player.flipX = false; // use the original sprite looking to the right
+      if (this.game.input.pointers[0].isDown) {
+        anims.create({
+          key: 'walkshoot',
+          frames: anims.generateFrameNumbers('player', {
+            start: 5,
+            end: 9
+          }),
+          frameRate: 10,
+          repeat: -1
+        });
+        player.body.setVelocityX(175); // move left
+        player.anims.play('walkshoot', true); // play walk animation
+        player.flipX = false; // flip the sprite to the left
+      }
+      else{
+        anims.create({
+          key: 'walk',
+          frames: anims.generateFrameNumbers('player', {
+            start: 1,
+            end: 4
+          }),
+          frameRate: 10,
+          repeat: -1
+        });
+        player.body.setVelocityX(175); // move right
+        player.anims.play('walk', true); // play walk animatio
+        player.flipX = false; // use the original sprite looking to the right
+      }
+      
     } else {
-      anims.create({
-        key: 'idle',
-        frames: [{
-          key: 'player',
-          frame: 0
-        }],
-        frameRate: 20
-      });
-      player.body.setVelocityX(0);
-      player.anims.play('idle', true);
+      if (this.game.input.pointers[0].isDown) {
+        anims.create({
+          key: 'walkshoot',
+          frames: anims.generateFrameNumbers('player', {
+            start: 5,
+            end: 9
+          }),
+          frameRate: 10,
+          repeat: -1
+        });
+        player.body.setVelocityX(0); 
+        player.anims.play('walkshoot', true); // play walk animation
+      }
+      else{
+        anims.create({
+          key: 'idle',
+          frames: [{
+            key: 'player',
+            frame: 0
+          }],
+          frameRate: 20
+        });
+        player.body.setVelocityX(0);
+        player.anims.play('idle', true);
+      }
+      
     }
     //if (score%4 == 0 && score > 0)
     //  spawnBoxes();
