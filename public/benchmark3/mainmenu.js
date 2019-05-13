@@ -40,16 +40,18 @@ var MainMenu = new Phaser.Class({
       });
     },
 
+
   preload: function() {
     // map made with Tiled in JSON format
     window.location.hash = "mainmenu";
     this.load.audio('bgmusic', ['assets/audio/menu.mp3', 'assets/audio/menu.ogg']);
     this.load.image("tiles", "assets/tileset/custtiles1.png");
-    this.load.image("logo", "assets/branding/logo.png");
+    this.load.image("logo", "assets/branding/logo.png"); 
     this.load.spritesheet("buttonSpriteSheet", "assets/sprites/buttons/buttonSpriteSheet.png", {frameWidth: 128, frameHeight: 128});
 
     this.load.tilemapTiledJSON('map', 'assets/tilemap/level1map.json');
     this.load.atlas('buttons', 'assets/buttons/buttons.png', 'assets/buttons/buttons.json');
+    
   },
 
   create: function() {
@@ -57,13 +59,12 @@ var MainMenu = new Phaser.Class({
     map = this.make.tilemap({
       key: 'map'
     });
-
+    
     const tileset = map.addTilesetImage("custtiles1", "tiles");
     worldLayer = map.createDynamicLayer("BackLayer", tileset, 0, 0);
-
-    music = this.sound.add('bgmusic');
-    music.setLoop(true);
-    music.play();
+    
+    
+    
 
     var logo = this.add.sprite(400, 140, 'logo');
     this.newgame = this.addButton(400, 260, 'buttons', this.doStart, this, 'newGameButtonHover', 'newGameButton', 'newGameButtonHover', 'controlsButton');
@@ -71,26 +72,35 @@ var MainMenu = new Phaser.Class({
     this.controls = this.addButton(320, 380, 'buttons', this.doControls, this, 'controlsButtonHover', 'controlsButton', 'controlsButtonHover', 'controlsButton');
     this.settings = this.addButton(480, 320, 'buttons', this.doSettings, this, 'settingsButtonHover', 'settingsButton', 'settingsButtonHover', 'settingsButtonHover');
     this.help = this.addButton(480, 380, 'buttons', this.doHelp, this, 'helpButtonHover', 'helpButton', 'helpButtonHover', 'help');
+    var isActive = this.scene.isActive('musicBack');
+    if (!isActive){
+      this.scene.launch('musicBack');
+    }
+    
   },
 
   doStart: function() {
-    music.stop()
+    music.stop();
     this.scene.start('gamescene1');
   },
 
   doLevel: function() {
+
     this.scene.start('levelmenu');
   },
 
   doControls: function() {
+
     this.scene.start('controlmenu');
   },
 
   doSettings: function() {
+
     this.scene.start('settingmenu');
   },
 
   doHelp: function() {
+
     this.scene.start('helpmenu');
   }
 
@@ -134,21 +144,22 @@ var LevelMenu = new Phaser.Class({
   },
 
   doReturn: function() {
+    
     this.scene.start('mainmenu');
   },
 
   launchLevelOne: function() {
-    music.stop()
+    music.stop();
     this.scene.start('gamescene1');
   },
 
   launchLevelTwo: function() {
-    music.stop()
+    music.stop();
     this.scene.start('gamescene2');
   },
 
   launchLevelThree: function() {
-    music.stop()
+    music.stop();
     this.scene.start('gamescene3');
   }
 
@@ -203,6 +214,7 @@ var ControlsMenu = new Phaser.Class({
   },
 
   doReturn: function() {
+
     this.scene.start('mainmenu');
   }
 
@@ -243,6 +255,7 @@ var SettingsMenu = new Phaser.Class({
   },
 
   doReturn: function() {
+
     this.scene.start('mainmenu');
   }
 
@@ -307,7 +320,30 @@ var HelpMenu = new Phaser.Class({
   },
 
   doReturn: function() {
+   
     this.scene.start('mainmenu');
   }
 
 });
+var MusicScene = new Phaser.Class({
+
+  Extends: Phaser.Scene,
+
+  initialize:
+
+    function MainMenu() {
+      Phaser.Scene.call(this, {
+        key: 'musicBack'
+      });
+    },
+    preload: function() {
+      
+				
+    },
+    create: function() {
+      music = this.sound.add('bgmusic');
+      music.setLoop(true);
+      music.play();
+    },
+
+  });
