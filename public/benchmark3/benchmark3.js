@@ -143,11 +143,8 @@ var Box = new Phaser.Class({
       this.scene = scene;
       this.worldlayer = worldLayer;
       this.invinc = false;
-<<<<<<< HEAD
-=======
       this.powerup = this.getRandomInt(1,3);
       console.log(this.invinc);
->>>>>>> 14e01024db47fe777fc996458b28b79c44f667c8
       this.setSize(14, 14, true);
       this.born;
     },
