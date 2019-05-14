@@ -41,7 +41,7 @@ var maxAmmo;
 var timescale; //time in normal form, scaled to be readable
 var timeintervals;
 var enemySpeed = 2;
-
+var progressionThreshold = 30; //amount of points needed to progress enemy difficulty in-level
 
 //class groups
 var playerBullets;
@@ -303,7 +303,7 @@ var Enemy = new Phaser.Class({
 
       //
     } else if (this.reachedDest == 2) { //has dropped the package
-      var boxdrop = boxes.get().setActive(true).setVisible(true);
+      var boxdrop = boxes.get();
       boxdrop.spawnBox(this.x, this.y, this.invinc);
 
       this.reachedDest = 3;
@@ -480,7 +480,7 @@ function create() {
   diff = 1; //easy
   maxSpawnRate = 5000 * diff * level;
   enemySpeed = enemySpeed*diff;
-  stacks = 0;
+  stacks = 1;
   timeintervals = [];
 
   var tileset;
@@ -920,13 +920,17 @@ function destroyEnemy(bullet, enemy) {
       }
 
     }*/
-    if (score % 5 == 0) {
-        if (enemySpeed < 4*diff+level){
-          enemySpeed++;
+    if (score > progressionThreshold*stacks) {
+        if (enemySpeed < 3*diff+level){
+          enemySpeed+=.5;
           console.log("enemies are faster");
         }
         if(score < 4000){
-          intervalID = window.setInterval(this.spawnEnemy, maxSpawnRate - score*5);
+          intervalID = window.setInterval(this.spawnEnemy, maxSpawnRate - progressionThreshold*stacks);
+          if(stacks < 2+diff+level){
+            stacks++;
+          }
+          
           console.log("new wave added");
           console.log(intervalID);
           timeintervals.push(intervalID);
@@ -942,8 +946,12 @@ function destroyEnemy(bullet, enemy) {
 }
 
 function spawnEnemy(){
-  var drone = enemies.get().setActive(true).setVisible(true);
-  drone.spawnEnemy(invincibility,enemySpeed);
+  
+  for(var i = 0; i < stacks; i++){
+    var drone = enemies.get().setActive(true).setVisible(true);
+    drone.spawnEnemy(invincibility,enemySpeed);
+  }
+  
   return false;
 }
 
