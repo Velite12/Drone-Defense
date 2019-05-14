@@ -132,7 +132,9 @@ var Box = new Phaser.Class({
     // Box Constructor
     function Box(scene) {
       //var boxsample = Phaser.GameObjects.Sprite.call(this, scene, 0, 0, 'box');
-      Phaser.GameObjects.Image.call(this, scene, 0, 0, 'box');
+      this.type = this.generateType();
+      console.log(this.type);
+      Phaser.GameObjects.Image.call(this, scene, 0, 0, this.type);
       this.speed = 0.0;
       this.born = 0;
       this.direction = 0;
@@ -141,14 +143,26 @@ var Box = new Phaser.Class({
       this.scene = scene;
       this.worldlayer = worldLayer;
       this.invinc = false;
+<<<<<<< HEAD
+=======
       this.powerup = this.getRandomInt(1,3);
       console.log(this.invinc);
+>>>>>>> 14e01024db47fe777fc996458b28b79c44f667c8
       this.setSize(14, 14, true);
       this.born;
-
     },
 
 
+  generateType: function(){
+      // var selection = Math.floor(Math.random() * 101);
+      // if(selection > 89){
+      //   var selection = Math.floor(Math.random() * 6);
+      //
+      // }else{
+      //   return 'box';
+      // }
+      return 'box';
+  },
 
   spawnBox: function(posx, posy, invinc) {
     this.born = 1;
