@@ -26,6 +26,8 @@ var debugtext;
 //game var
 var weaponTypes = ['rock', 'bat', 'grenade', 'shotgun'];
 var currentWeaponType = 'rock';
+var powerupType = ['speed','jump','armor','invincibility']
+var currentPowerups = [];
 var level = 1;
 var diff;
 var healthpoints;
@@ -143,24 +145,19 @@ var Box = new Phaser.Class({
       this.scene = scene;
       this.worldlayer = worldLayer;
       this.invinc = false;
-<<<<<<< HEAD
-=======
-      this.powerup = this.getRandomInt(1,3);
-      console.log(this.invinc);
->>>>>>> 14e01024db47fe777fc996458b28b79c44f667c8
       this.setSize(14, 14, true);
       this.born;
     },
 
 
   generateType: function(){
-      // var selection = Math.floor(Math.random() * 101);
-      // if(selection > 89){
-      //   var selection = Math.floor(Math.random() * 6);
-      //
-      // }else{
-      //   return 'box';
-      // }
+      var selection = Math.floor(Math.random() * 101);
+      if(selection > 89){
+        var selection = this,getRandomInt(0,powerupType.length);
+        return powerupType[selection];
+      }else{
+        return 'box';
+      }
       return 'box';
   },
 
@@ -168,7 +165,7 @@ var Box = new Phaser.Class({
     this.born = 1;
     this.setPosition(Math.floor(posx), Math.floor(posy) + 20);
     console.log(this.powerup);
-    
+
     this.invinc = invinc;
     //this.body.setCollideWorldBounds(true);
 
@@ -187,7 +184,7 @@ var Box = new Phaser.Class({
       if (!this.invinc){
         player.health--;
       }
-      
+
       this.destroy();
 
     }
@@ -201,41 +198,6 @@ var Box = new Phaser.Class({
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
-
-});
-
-///////////////////////////////////////////////////////////////////////////////
-
-var Powerup = new Phaser.Class({
-
-  Extends: Phaser.GameObjects.Image,
-
-  initialize:
-
-    // Box Constructor
-    function Powerup(scene) {
-      //var boxsample = Phaser.GameObjects.Sprite.call(this, scene, 0, 0, 'box');
-      Phaser.GameObjects.Image.call(this, scene, 0, 0, 'box');
-      this.speed = 0.0;
-      this.born = 0;
-      this.direction = 0;
-      this.xSpeed = 0;
-      this.ySpeed = 2;
-      this.scene = scene;
-      this.worldlayer = worldLayer;
-      this.invinc = false;
-      this.powerup = Box.getRandomInt(1,3);
-      console.log(this.invinc);
-      this.setSize(14, 14, true);
-      this.born;
-
-    },
-
-    getRandomInt: function(min, max) {
-      min = Math.ceil(min);
-      max = Math.floor(max);
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
 
 });
 
@@ -356,6 +318,10 @@ var GameScene1 = new Phaser.Class({
     this.load.image("target", "assets/sprites/reticle.png");
     // simple coin image
     this.load.image('box', 'assets/sprites/amazonpackage.png');
+    this.load.image('speed', 'assets/sprites/speed.png');
+    this.load.image('jump', 'assets/sprites/jump.png');
+    this.load.image('armor', 'assets/sprites/armor.png');
+    this.load.image("invincibility", 'assets/sprites/invincibility.png');
     this.load.image("enemy", 'assets/sprites/drone.png');
     // player animations
     //this.load.image('player', 'assets/sprites/neighbor.png');
@@ -403,9 +369,14 @@ var GameScene2 = new Phaser.Class({
     this.load.image("bullet", "assets/sprites/stone.png")
     this.load.image("target", "assets/sprites/reticle.png")
     // simple coin image
-    this.load.image('box', 'assets/sprites/amazonpackage.png');
     this.load.image("stone", "assets/sprites/stone.png");
     this.load.image("shotgun", "assets/sprites/shotgun.png");
+
+    this.load.image('box', 'assets/sprites/amazonpackage.png');
+    this.load.image('speed', 'assets/sprites/speed.png');
+    this.load.image('jump', 'assets/sprites/jump.png');
+    this.load.image('armor', 'assets/sprites/armor.png');
+    this.load.image("invincibility", 'assets/sprites/invincibility.png');
     this.load.image("enemy", 'assets/sprites/drone.png');
     // player animations
     //this.load.image('player', 'assets/sprites/neighbor.png');
@@ -456,6 +427,10 @@ var GameScene3 = new Phaser.Class({
     this.load.image("target", "assets/sprites/reticle.png");
     // simple coin image
     this.load.image('box', 'assets/sprites/amazonpackage.png');
+    this.load.image('speed', 'assets/sprites/speed.png');
+    this.load.image('jump', 'assets/sprites/jump.png');
+    this.load.image('armor', 'assets/sprites/armor.png');
+    this.load.image("invincibility", 'assets/sprites/invincibility.png');
     this.load.image("enemy", 'assets/sprites/drone.png');
     // player animations
     //this.load.image('player', 'assets/sprites/neighbor.png');
@@ -588,7 +563,7 @@ function create() {
     fill: '#ffffff'
   });
   text4.setScrollFactor(0);
-  
+
   weaponEquipped = this.physics.add.image(250, 580, "stone");
   weaponEquipped.setScrollFactor(0);
   //debug
@@ -862,7 +837,7 @@ function update(time, delta) {
           music3.stop();
           break;
       }
-      
+
       musicEnd= this.sound.add('end');
       musicEnd1= this.sound.add('sad');
       musicEnd.setLoop(true);
@@ -874,7 +849,7 @@ function update(time, delta) {
       this.scene.pause();
     }
     //drone.spawnEnemy();
-    
+
 }
 
 function collectBox(player, box) {
@@ -912,12 +887,12 @@ function destroyEnemy(bullet, enemy) {
           enemySpeed++;
           console.log("enemies are faster");
         }
-        
+
         intervalID = window.setInterval(this.spawnEnemy, maxSpawnRate - (stacks*5));
         console.log("new wave added");
         console.log(intervalID);
         timeintervals.push(intervalID);
-        
+
       }
 
     }
