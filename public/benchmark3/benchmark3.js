@@ -3,23 +3,29 @@ weapons: rock
 drone: level 1 drone
 package: amazon package
 */
-
+//settings var
 var clock;
 var map;
 var player;
 var paused;
 
+//important var
 var cursors;
 var worldLayer, boxLayer;
 
-
+//ui var
 var score = 0;
 var text1;
 var text2;
 var text3;
 var text4;
+var weaponEquipped;
 var debugtext;
 
+
+//game var
+var weaponTypes = ['rock', 'bat', 'grenade', 'shotgun'];
+var currentWeaponType = 'rock';
 var level = 1;
 var diff;
 var healthpoints;
@@ -29,6 +35,13 @@ var stacks; //will ramp up the spawnrate
 var maxSpawnRate;
 var intervalID;
 var invincibility = false;
+var time; //actual time
+var shotusedsingle = 1;
+var maxAmmo;
+var timescale; //time in normal form, scaled to be readable
+var timeintervals;
+var enemySpeed = 1;
+
 
 //class groups
 var playerBullets;
@@ -36,11 +49,7 @@ var enemyBullets;
 var enemies;
 var boxes;
 
-var time; //actual time
-var shotusedsingle = 1;
-var maxAmmo;
-var timescale; //time in normal form, scaled to be readable
-var timeintervals;
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -132,6 +141,7 @@ var Box = new Phaser.Class({
       this.scene = scene;
       this.worldlayer = worldLayer;
       this.invinc = false;
+      this.powerup = this.getRandomInt(1,3);
       console.log(this.invinc);
       this.setSize(14, 14, true);
       this.born;
@@ -143,6 +153,9 @@ var Box = new Phaser.Class({
   spawnBox: function(posx, posy, invinc) {
     this.born = 1;
     this.setPosition(Math.floor(posx), Math.floor(posy) + 20);
+    if(this.powerup == 1){
+
+    }
     this.invinc = invinc;
     //this.body.setCollideWorldBounds(true);
 
@@ -152,7 +165,6 @@ var Box = new Phaser.Class({
     if (this.born >= 1) {
       this.born += delta;
     }
-
     //debugtext.setText(this.born);
     if (this.born > 5000) {
       //this.setActive(false);
@@ -162,7 +174,7 @@ var Box = new Phaser.Class({
       if (!this.invinc){
         player.health--;
       }
-
+      
       this.destroy();
 
     }
@@ -170,7 +182,47 @@ var Box = new Phaser.Class({
     //this.y += this.ySpeed;
     //this.scene.physics.add.collider(worldLayer, this);
 
+  },
+  getRandomInt: function(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
+
+});
+
+///////////////////////////////////////////////////////////////////////////////
+
+var Powerup = new Phaser.Class({
+
+  Extends: Phaser.GameObjects.Image,
+
+  initialize:
+
+    // Box Constructor
+    function Powerup(scene) {
+      //var boxsample = Phaser.GameObjects.Sprite.call(this, scene, 0, 0, 'box');
+      Phaser.GameObjects.Image.call(this, scene, 0, 0, 'box');
+      this.speed = 0.0;
+      this.born = 0;
+      this.direction = 0;
+      this.xSpeed = 0;
+      this.ySpeed = 2;
+      this.scene = scene;
+      this.worldlayer = worldLayer;
+      this.invinc = false;
+      this.powerup = Box.getRandomInt(1,3);
+      console.log(this.invinc);
+      this.setSize(14, 14, true);
+      this.born;
+
+    },
+
+    getRandomInt: function(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 
 });
 
@@ -285,11 +337,13 @@ var GameScene1 = new Phaser.Class({
     this.load.image("tiles", "assets/tileset/custtiles1.png");
     this.load.tilemapTiledJSON('map', 'assets/tilemap/level1map.json');
     // tiles in spritesheet
-    this.load.image("bullet", "assets/sprites/stone.png")
-    this.load.image("target", "assets/sprites/reticle.png")
+    this.load.image("bullet", "assets/sprites/stone.png");
+    this.load.image("stone", "assets/sprites/stone.png");
+    this.load.image("shotgun", "assets/sprites/shotgun.png");
+    this.load.image("target", "assets/sprites/reticle.png");
     // simple coin image
     this.load.image('box', 'assets/sprites/amazonpackage.png');
-    this.load.image("enemy", 'assets/sprites/drone.png')
+    this.load.image("enemy", 'assets/sprites/drone.png');
     // player animations
     //this.load.image('player', 'assets/sprites/neighbor.png');
     this.load.spritesheet('player', 'assets/sprites/neighborwalk.png', {
@@ -302,7 +356,8 @@ var GameScene1 = new Phaser.Class({
   update: update,
   collectBox: collectBox,
   destroyEnemy: destroyEnemy,
-  spawnEnemy: spawnEnemy
+  spawnEnemy: spawnEnemy,
+  collectShotgun: collectShotgun
 });
 
 var GameScene2 = new Phaser.Class({
@@ -336,7 +391,9 @@ var GameScene2 = new Phaser.Class({
     this.load.image("target", "assets/sprites/reticle.png")
     // simple coin image
     this.load.image('box', 'assets/sprites/amazonpackage.png');
-    this.load.image("enemy", 'assets/sprites/drone.png')
+    this.load.image("stone", "assets/sprites/stone.png");
+    this.load.image("shotgun", "assets/sprites/shotgun.png");
+    this.load.image("enemy", 'assets/sprites/drone.png');
     // player animations
     //this.load.image('player', 'assets/sprites/neighbor.png');
     this.load.spritesheet('player', 'assets/sprites/neighborwalk.png', {
@@ -349,7 +406,8 @@ var GameScene2 = new Phaser.Class({
   update: update,
   collectBox: collectBox,
   destroyEnemy: destroyEnemy,
-  spawnEnemy: spawnEnemy
+  spawnEnemy: spawnEnemy,
+  collectShotgun: collectShotgun
 });
 
 var GameScene3 = new Phaser.Class({
@@ -379,11 +437,13 @@ var GameScene3 = new Phaser.Class({
     this.load.image("tiles", "assets/tileset/custtiles3.png");
     this.load.tilemapTiledJSON('map', 'assets/tilemap/level3map.json');
     // tiles in spritesheet
-    this.load.image("bullet", "assets/sprites/stone.png")
-    this.load.image("target", "assets/sprites/reticle.png")
+    this.load.image("bullet", "assets/sprites/stone.png");
+    this.load.image("stone", "assets/sprites/stone.png");
+    this.load.image("shotgun", "assets/sprites/shotgun.png");
+    this.load.image("target", "assets/sprites/reticle.png");
     // simple coin image
     this.load.image('box', 'assets/sprites/amazonpackage.png');
-    this.load.image("enemy", 'assets/sprites/drone.png')
+    this.load.image("enemy", 'assets/sprites/drone.png');
     // player animations
     //this.load.image('player', 'assets/sprites/neighbor.png');
     this.load.spritesheet('player', 'assets/sprites/neighborwalk.png', {
@@ -396,7 +456,8 @@ var GameScene3 = new Phaser.Class({
   update: update,
   collectBox: collectBox,
   destroyEnemy: destroyEnemy,
-  spawnEnemy: spawnEnemy
+  spawnEnemy: spawnEnemy,
+  collectShotgun: collectShotgun
 });
 
 function create() {
@@ -406,6 +467,7 @@ function create() {
   });
   diff = 1; //easy
   maxSpawnRate = 5000 * diff * level;
+  enemySpeed = enemySpeed*diff;
   stacks = 0;
   timeintervals = [];
 
@@ -514,6 +576,9 @@ function create() {
     fill: '#ffffff'
   });
   text4.setScrollFactor(0);
+  
+  weaponEquipped = this.physics.add.sprite(250, 580, "stone");
+  weaponEquipped.setScrollFactor(0);
   //debug
   /*debugtext = this.add.text(250, 570, '0', {
       fontSize: '20px',
@@ -667,7 +732,7 @@ function update(time, delta) {
           key: 'walkshoot',
           frames: anims.generateFrameNumbers('player', {
             start: 5,
-            end: 9
+            end: 8
           }),
           frameRate: 10,
           repeat: -1
@@ -697,7 +762,7 @@ function update(time, delta) {
           key: 'walkshoot',
           frames: anims.generateFrameNumbers('player', {
             start: 5,
-            end: 9
+            end: 8
           }),
           frameRate: 10,
           repeat: -1
@@ -724,10 +789,10 @@ function update(time, delta) {
     } else {
       if (this.game.input.pointers[0].isDown) {
         anims.create({
-          key: 'walkshoot',
+          key: 'idleshoot',
           frames: anims.generateFrameNumbers('player', {
             start: 5,
-            end: 9
+            end: 8
           }),
           frameRate: 10,
           repeat: -1
@@ -835,6 +900,16 @@ function destroyEnemy(bullet, enemy) {
 
 function spawnEnemy(){
   var drone = enemies.get().setActive(true).setVisible(true);
-  drone.spawnEnemy(invincibility);
+  drone.spawnEnemy(invincibility,speed);
+  return false;
+}
+
+function collectShotgun(player, box) {
+  //boxLayer.removeTileAt(tile.x, tile.y); // remove the tile/coin
+  this.sound.add('bullet').play();
+  box.destroy();
+  score++;
+  text1.setText("Points: " + score);
+  //generates more boxes
   return false;
 }
