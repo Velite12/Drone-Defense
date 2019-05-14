@@ -153,9 +153,8 @@ var Box = new Phaser.Class({
   spawnBox: function(posx, posy, invinc) {
     this.born = 1;
     this.setPosition(Math.floor(posx), Math.floor(posy) + 20);
-    if(this.powerup == 1){
-
-    }
+    console.log(this.powerup);
+    
     this.invinc = invinc;
     //this.body.setCollideWorldBounds(true);
 
@@ -245,18 +244,18 @@ var Enemy = new Phaser.Class({
       this.invinc = false;
       this.destinationX = (150 + (Math.floor(Math.random() * 15) + 0)) * (Math.floor(Math.random() * 4) + 1);
       this.destinationY = 400;
-      this.originX = Math.floor(Math.random() * 800) + 0;
-      this.originY = Math.floor(Math.random() * 300) + 0;
+      this.originX = Math.floor(Math.random() * 2) + 0;
+      this.originY = Math.floor(Math.random() * 300) + 5;
       this.reachedDest = 0;
       this.scene = scene;
-      this.setSize(12, 12, true);
+      this.setSize(16, 16, true);
 
 
     },
 
   spawnEnemy: function(invincibility) {
     this.invinc = invincibility;
-    this.setPosition(this.originX, this.originY);
+    this.setPosition(800*(this.originX), this.originY);
 
 
   },
@@ -496,7 +495,6 @@ function create() {
 
   //class declaring
   playerBullets = this.physics.add.group({
-    key: 'bullet',
     gravityY: 300,
     classType: Bullet,
     runChildUpdate: true
@@ -504,10 +502,9 @@ function create() {
 
   boxes = this.physics.add.group({
 
-    key: 'box',
     classType: Box,
     runChildUpdate: true,
-    gravityY: 100,
+    gravityY: 100
 
   });
 
@@ -516,6 +513,7 @@ function create() {
     classType: Enemy,
     runChildUpdate: true
   });
+
 
   worldLayer = map.createDynamicLayer("BackLayer", tileset, 0, 0);
 
@@ -577,7 +575,7 @@ function create() {
   });
   text4.setScrollFactor(0);
   
-  weaponEquipped = this.physics.add.sprite(250, 580, "stone");
+  weaponEquipped = this.physics.add.image(250, 580, "stone");
   weaponEquipped.setScrollFactor(0);
   //debug
   /*debugtext = this.add.text(250, 570, '0', {
@@ -720,6 +718,7 @@ function create() {
   }, this);
 
   //clock.addEvent({ delay: 5000,  loop: true, callback: spawnEnemy(), callbackScope: this});
+
   intervalID = window.setInterval(this.spawnEnemy, maxSpawnRate - stacks);
   timeintervals.push(intervalID);
 }
@@ -849,7 +848,7 @@ function update(time, delta) {
           music3.stop();
           break;
       }
-
+      
       musicEnd= this.sound.add('end');
       musicEnd1= this.sound.add('sad');
       musicEnd.setLoop(true);
@@ -861,11 +860,19 @@ function update(time, delta) {
       this.scene.pause();
     }
     //drone.spawnEnemy();
+    
 }
 
 function collectBox(player, box) {
   //boxLayer.removeTileAt(tile.x, tile.y); // remove the tile/coin
   this.sound.add('bullet').play();
+  if (box.powerup == 1){
+    player.currentWeaponType = 'shotgun';
+    weaponEquipped.destroy();
+    weaponEquipped = this.physics.add.image(250, 580, 'shotgun');
+    weaponEquipped.setScrollFactor(0);
+    console.log("shotgun added");
+  }
   box.destroy();
   score++;
   text1.setText("Points: " + score);
@@ -887,9 +894,16 @@ function destroyEnemy(bullet, enemy) {
     if (stacks < maxSpawnRate - 10) {
       stacks += 10 * diff * level;
       if (stacks % (20 / diff) == 0) {
-        intervalID = window.setInterval(this.spawnEnemy, maxSpawnRate - stacks);
+        if (enemySpeed < 4*diff+level){
+          enemySpeed++;
+          console.log("enemies are faster");
+        }
+        
+        intervalID = window.setInterval(this.spawnEnemy, maxSpawnRate - (stacks*5));
         console.log("new wave added");
+        console.log(intervalID);
         timeintervals.push(intervalID);
+        
       }
 
     }
@@ -900,7 +914,7 @@ function destroyEnemy(bullet, enemy) {
 
 function spawnEnemy(){
   var drone = enemies.get().setActive(true).setVisible(true);
-  drone.spawnEnemy(invincibility,speed);
+  drone.spawnEnemy(invincibility,enemySpeed);
   return false;
 }
 
