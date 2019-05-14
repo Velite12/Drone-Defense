@@ -162,7 +162,7 @@ var Box = new Phaser.Class({
       if (!this.invinc){
         player.health--;
       }
-      
+
       this.destroy();
 
     }
@@ -329,8 +329,8 @@ var GameScene2 = new Phaser.Class({
     this.load.audio('smash', ['assets/audio/smash.mp3', 'assets/audio/smash.ogg']);
 
     // map made with Tiled in JSON format
-    this.load.image("tiles", "assets/tileset/custtiles1.png");
-    this.load.tilemapTiledJSON('map', 'assets/tilemap/level1map.json');
+    this.load.image("tiles", "assets/tileset/custtiles2.png");
+    this.load.tilemapTiledJSON('map', 'assets/tilemap/level2map.json');
     // tiles in spritesheet
     this.load.image("bullet", "assets/sprites/stone.png")
     this.load.image("target", "assets/sprites/reticle.png")
@@ -376,8 +376,8 @@ var GameScene3 = new Phaser.Class({
     this.load.audio('smash', ['assets/audio/smash.mp3', 'assets/audio/smash.ogg']);
 
     // map made with Tiled in JSON format
-    this.load.image("tiles", "assets/tileset/custtiles1.png");
-    this.load.tilemapTiledJSON('map', 'assets/tilemap/level1map.json');
+    this.load.image("tiles", "assets/tileset/custtiles3.png");
+    this.load.tilemapTiledJSON('map', 'assets/tilemap/level3map.json');
     // tiles in spritesheet
     this.load.image("bullet", "assets/sprites/stone.png")
     this.load.image("target", "assets/sprites/reticle.png")
@@ -409,20 +409,23 @@ function create() {
   stacks = 0;
   timeintervals = [];
 
-  const tileset = map.addTilesetImage("custtiles1", "tiles");
+  var tileset;
 
   switch(level){
     case 1:
+      tileset = map.addTilesetImage("custtiles1", "tiles");
       music1= this.sound.add('bgmusic1');
       music1.setLoop(true);
       music1.play();
       break;
     case 2:
+      tileset = map.addTilesetImage("custtiles2", "tiles");
       music2 = this.sound.add('bgmusic2');
       music2.setLoop(true);
       music2.play();
       break;
     case 3:
+      tileset = map.addTilesetImage("custtiles3", "tiles");
       music3 = this.sound.add('bgmusic3');
       music3.setLoop(true);
       music3.play();
@@ -543,12 +546,12 @@ function create() {
   this.input.keyboard.on('keydown_I', function(event) {
     if (invincibility)
       invincibility = false;
-      
+
     else{
       invincibility = true;
       player.health = 3;
     }
-      
+
     console.log("invincibility: ",invincibility);
   }, 0, this);
 
@@ -687,7 +690,7 @@ function update(time, delta) {
         player.anims.play('walk', true); // play walk animation
         player.flipX = true; // flip the sprite to the left
       }
-      
+
     } else if (cursors.right.isDown) {
       if (this.game.input.pointers[0].isDown) {
         anims.create({
@@ -717,7 +720,7 @@ function update(time, delta) {
         player.anims.play('walk', true); // play walk animatio
         player.flipX = false; // use the original sprite looking to the right
       }
-      
+
     } else {
       if (this.game.input.pointers[0].isDown) {
         anims.create({
@@ -729,7 +732,7 @@ function update(time, delta) {
           frameRate: 10,
           repeat: -1
         });
-        player.body.setVelocityX(0); 
+        player.body.setVelocityX(0);
         player.anims.play('walkshoot', true); // play walk animation
       }
       else{
@@ -744,7 +747,7 @@ function update(time, delta) {
         player.body.setVelocityX(0);
         player.anims.play('idle', true);
       }
-      
+
     }
     //if (score%4 == 0 && score > 0)
     //  spawnBoxes();
