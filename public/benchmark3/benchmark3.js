@@ -40,7 +40,7 @@ var shotusedsingle = 1;
 var maxAmmo;
 var timescale; //time in normal form, scaled to be readable
 var timeintervals;
-var enemySpeed = 1;
+var enemySpeed = 2;
 
 
 //class groups
@@ -253,8 +253,10 @@ var Enemy = new Phaser.Class({
 
     },
 
-  spawnEnemy: function(invincibility) {
+  spawnEnemy: function(invincibility, speed) {
     this.invinc = invincibility;
+    this.xSpeed = speed;
+    this.ySpeed = speed;
     this.setPosition(800*(this.originX), this.originY);
 
 
@@ -719,7 +721,7 @@ function create() {
 
   //clock.addEvent({ delay: 5000,  loop: true, callback: spawnEnemy(), callbackScope: this});
 
-  intervalID = window.setInterval(this.spawnEnemy, maxSpawnRate - stacks);
+  intervalID = window.setInterval(this.spawnEnemy, maxSpawnRate);
   timeintervals.push(intervalID);
 }
 
@@ -891,7 +893,7 @@ function destroyEnemy(bullet, enemy) {
 
     //playerBullets.get().setActive(false).setVisible(false);
     //bullet.destroy();
-    if (stacks < maxSpawnRate - 10) {
+    /*if (stacks < maxSpawnRate - 10) {
       stacks += 10 * diff * level;
       if (stacks % (20 / diff) == 0) {
         if (enemySpeed < 4*diff+level){
@@ -899,14 +901,30 @@ function destroyEnemy(bullet, enemy) {
           console.log("enemies are faster");
         }
         
-        intervalID = window.setInterval(this.spawnEnemy, maxSpawnRate - (stacks*5));
+        intervalID = window.setInterval(this.spawnEnemy, maxSpawnRate - stacks);
         console.log("new wave added");
         console.log(intervalID);
         timeintervals.push(intervalID);
         
       }
 
-    }
+    }*/
+    if (score % 5 == 0) {
+        if (enemySpeed < 4*diff+level){
+          enemySpeed++;
+          console.log("enemies are faster");
+        }
+        if(score < 4000){
+          intervalID = window.setInterval(this.spawnEnemy, maxSpawnRate - score*5);
+          console.log("new wave added");
+          console.log(intervalID);
+          timeintervals.push(intervalID);
+        }
+        
+        
+      }
+
+    
     score += 5;
     text1.setText("Points: " + score);
     return false;
