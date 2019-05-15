@@ -58,7 +58,7 @@ var Preloader = new Phaser.Class({
 		this.setPreloadSprite(this.loadingbar_fill);
 
 		// !! TESTING !! load the same image 500 times just to slow down the load and test the loading bar
-		for (var i = 0; i < 100; i++) {
+		for (var i = 0; i < 600; i++) {
 			this.load.image('testloading'+i, '../assets/tileset/custtiles1.png');
 		};
 		// !! TESTING !!
