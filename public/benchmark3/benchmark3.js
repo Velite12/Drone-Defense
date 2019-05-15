@@ -140,6 +140,8 @@ var Box = new Phaser.Class({
       this.direction = 0;
       this.xSpeed = 0;
       this.ySpeed = 2;
+      this.posX;
+      this.posY;
       this.scene = scene;
       this.worldlayer = worldLayer;
       this.invinc = false;
@@ -165,7 +167,8 @@ var Box = new Phaser.Class({
     this.born = 1;
     this.setPosition(Math.floor(posx), Math.floor(posy) + 20);
     console.log(this.powerup);
-    
+    this.posX = posx;
+    this.posY = posy;
     this.invinc = invinc;
     //this.body.setCollideWorldBounds(true);
 
@@ -832,7 +835,10 @@ function update(time, delta) {
     timescale = Math.floor(time / 500);
     text3.setText("Health: " + player.health);
     text4.setText("Time: " + timescale);
-    this.physics.add.collider(boxes, worldLayer);
+    this.physics.add.collider(boxes, worldLayer, function(boxes){
+      boxes.body.setAllowGravity(false);
+      boxes.body.y = (boxes.body.y-3);
+    });
     //this.physics.add.collider(boxes, player);
     this.physics.add.overlap(player, boxes, this.collectBox, null, this);
     if (player.health == 0) {
@@ -964,3 +970,4 @@ function collectShotgun(player, box) {
   //generates more boxes
   return false;
 }
+
