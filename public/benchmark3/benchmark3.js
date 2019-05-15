@@ -82,7 +82,7 @@ var Bullet = new Phaser.Class({
       this.xSpeed = 0;
       this.ySpeed = 0;
       this.setSize(size, size, true);
-      
+
 
 
     },
@@ -92,7 +92,7 @@ var Bullet = new Phaser.Class({
     this.body.setAllowGravity(gravity);
     this.setPosition(shooter.x, shooter.y - 15); // Initial position
     this.direction = Math.atan((target.x - this.x) / (target.y - this.y));
-    
+
 
     // Calculate X and y velocity of bullet to moves it from shooter to target
     if (target.y >= this.y) {
@@ -135,7 +135,7 @@ var Bullet = new Phaser.Class({
         text2.setText("Ammo: " + shotusedmult);
         playerBullets.remove(this, true, true);
       }
-      
+
 
     }
 
@@ -186,7 +186,6 @@ var Box = new Phaser.Class({
   spawnBox: function(posx, posy, invinc) {
     this.born = 1;
     this.setPosition(Math.floor(posx), Math.floor(posy) + 20);
-    console.log(this.weapon);
     this.posX = posx;
     this.posY = posy;
 
@@ -493,7 +492,7 @@ function create() {
   enemySpeed = enemySpeed*diff;
   stacks = 1;
   timeintervals = [];
-  
+
   var tileset;
 
   switch(level){
@@ -765,32 +764,32 @@ function create() {
         if(player.currentWeaponType == "rock"){
           if (shotusedsingle == 1) {
             var bullet = playerBullets.get('bullet',12).setActive(true).setVisible(true);
-          
-            
-              
+
+
+
               bullet.bornlimit = 1000;
               this.sound.add('bullet').play();
               bullet.fire(player, reticle, true);
-    
+
               this.physics.add.collider(bullet, enemies, this.destroyEnemy);
               this.physics.add.collider(bullet, worldLayer);
               shotusedsingle = 0;
-    
+
               text2.setText("Ammo: " + shotusedsingle);
             }
         }
       }
-      
+
       else if (shotusedmult > 0){
         var bullet = playerBullets.get('spread',35).setActive(true).setVisible(true);
         bullet.bornlimit = 2000;
         this.sound.add('bullet').play();
         bullet.fire(player, reticle, false);
-  
+
         this.physics.add.collider(bullet, enemies, this.destroyEnemy);
         this.physics.add.collider(bullet, worldLayer);
         shotusedmult--;
-  
+
         text2.setText("Ammo: " + shotusedmult);
         if(shotusedmult == 0){
           player.currentWeaponType = 'rock';
@@ -813,11 +812,11 @@ function create() {
         }
       }
     }
-    
-      
 
-    
-    
+
+
+
+
 
   }, this);
 
@@ -972,7 +971,7 @@ function update(time, delta) {
 
     text6.setText(Math.floor((currentPowerups.speed/powerdur)*100)+"%");
     text7.setText(Math.floor((currentPowerups.jump/powerdur)*100)+"%");
-    text8.setText(Math.floor((currentPowerups.invincibility/powerdur)*100)+"%");
+    text8.setText(Math.floor((currentPowerups.invincibility/(powerdur/2))*100)+"%");
 
     if (player.health == 0) {
       // Display word "Game Over" at center of the screen game
@@ -1031,23 +1030,35 @@ function collectBox(player, box) {
   switch (box.texture.key) {
     case 'speed':
         currentPowerups.speed = powerdur;
+        currentPowerups.jump = 0;
+        currentPowerups.invincibility = 0;
     break;
     case 'jump':
       currentPowerups.jump = powerdur;
+      currentPowerups.speed = 0;
+      currentPowerups.invincibility = 0;
     break;
     case 'armor':
       currentPowerups.armor = powerdur;
     break;
     case 'invincibility':
-      currentPowerups.invincibility = powerdur;
+      currentPowerups.invincibility = powerdur/2;
+      currentPowerups.jump = 0;
+      currentPowerups.speed = 0;
     break;
     default:
       score++;
   }
+
+
   boxes.remove(box, true, true);
+  if(boxes.countActive(true) == 0){
+    console.log("cleared");
+    boxes.clear(true,true)
+  }
   text1.setText("Points: " + score);
   //generates more boxes
- 
+
   return false;
 }
 
@@ -1059,7 +1070,7 @@ function destroyEnemy(bullet, enemy) {
     if(bullet.type == "bullet"){
       bullet.destroy();
     }
-    
+
     if (shotusedmult == 0){
       shotusedsingle = 1;
       text2.setText("Ammo: " + shotusedsingle);
@@ -1082,7 +1093,7 @@ function destroyEnemy(bullet, enemy) {
           console.log(intervalID);
           timeintervals.push(intervalID);
         }
-      
+
 
 
     }
@@ -1112,4 +1123,3 @@ function collectShotgun(player, box) {
   //generates more boxes
   return false;
 }
-

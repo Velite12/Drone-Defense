@@ -140,25 +140,27 @@ var LevelMenu = new Phaser.Class({
     this.firstLevel = this.addButton(400, 260, 'buttons', this.launchLevelOne, this, 'level1ButtonHover', 'level1Button', 'level1ButtonHover', 'level1Button');
     this.twoLevel = this.addButton(400, 300, 'buttons', this.launchLevelTwo, this, 'level2ButtonHover', 'level2Button', 'level2ButtonHover', 'level2Button');
     this.threeLevel = this.addButton(400, 340, 'buttons', this.launchLevelThree, this, 'level3ButtonHover', 'level3Button', 'level3ButtonHover', 'level3Button');
+    
   },
 
   doReturn: function() {
 
     this.scene.start('mainmenu');
+
   },
 
   launchLevelOne: function() {
-    music.stop();
+
     this.scene.start('gamescene1');
   },
 
   launchLevelTwo: function() {
-    music.stop();
+
     this.scene.start('gamescene2');
   },
 
   launchLevelThree: function() {
-    music.stop();
+
     this.scene.start('gamescene3');
   }
 
@@ -204,8 +206,6 @@ var ControlsMenu = new Phaser.Class({
       "Aiming = Mouse",
       "",
       "Shoot = Left Click",
-      "",
-      "Weapon swap = Right Click"
     ]
 
     this.add.text(275, 200, controls, headerStyle);
