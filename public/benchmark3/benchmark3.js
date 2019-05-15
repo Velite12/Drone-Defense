@@ -1,7 +1,4 @@
-/* currently the only game elements added are:
-weapons: rock
-drone: level 1 drone
-package: amazon package
+/* TODO: fix bullet
 */
 //settings var
 var clock;
@@ -51,6 +48,7 @@ var intervalID;
 var invincibility = false;
 var time; //actual time
 var shotusedsingle = 1;
+var shotusedmult = 0; //ammo for shotgun
 var maxAmmo;
 var timescale; //time in normal form, scaled to be readable
 var timeintervals;
@@ -74,24 +72,27 @@ var Bullet = new Phaser.Class({
   initialize:
 
     // Bullet Constructor
-    function Bullet(scene) {
-      Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
+    function Bullet(scene, key, size) {
+      Phaser.GameObjects.Image.call(this, scene, 0, 0, key);
       this.speed = 0.4;
+      this.type = key;
       this.born = 0;
+      this.bornlimit = 0;
       this.direction = 0;
       this.xSpeed = 0;
       this.ySpeed = 0;
-      this.setSize(12, 12, true);
+      this.setSize(size, size, true);
+      
 
 
     },
 
   // Fires a bullet from the player to the reticle
-  fire: function(shooter, target) {
-
+  fire: function(shooter, target, gravity) {
+    this.body.setAllowGravity(gravity);
     this.setPosition(shooter.x, shooter.y - 15); // Initial position
     this.direction = Math.atan((target.x - this.x) / (target.y - this.y));
-    this.body.setAllowGravity(true);
+    
 
     // Calculate X and y velocity of bullet to moves it from shooter to target
     if (target.y >= this.y) {
@@ -122,12 +123,19 @@ var Bullet = new Phaser.Class({
     this.y += this.ySpeed * delta;
     this.born += delta;
 
-    if (this.born > 1000) {
+    if (this.born > this.bornlimit) {
       //this.setActive(false);
       //this.setVisible(false);
-      shotusedsingle = 1;
-      text2.setText("Ammo: " + shotusedsingle);
-      this.destroy();
+      if (this.type == 'bullet'){
+        shotusedsingle = 1;
+        text2.setText("Ammo: " + shotusedsingle);
+        this.destroy();
+      }
+      else if (this.type == 'spread'){
+        text2.setText("Ammo: " + shotusedmult);
+        this.destroy();
+      }
+      
 
     }
 
@@ -160,6 +168,7 @@ var Box = new Phaser.Class({
       this.invinc = false;
       this.setSize(14, 14, true);
       this.born;
+      this.weapon = this.getRandomInt(1,10);
     },
 
 
@@ -177,7 +186,7 @@ var Box = new Phaser.Class({
   spawnBox: function(posx, posy, invinc) {
     this.born = 1;
     this.setPosition(Math.floor(posx), Math.floor(posy) + 20);
-    console.log(this.powerup);
+    console.log(this.weapon);
     this.posX = posx;
     this.posY = posy;
 
@@ -331,6 +340,7 @@ var GameScene1 = new Phaser.Class({
     // tiles in spritesheet
     this.load.image("bullet", "assets/sprites/stone.png");
     this.load.image("stone", "assets/sprites/stone.png");
+    this.load.image("spread", "assets/sprites/shotgunspread.png");
     this.load.image("shotgun", "assets/sprites/shotgun.png");
     this.load.image("target", "assets/sprites/reticle.png");
     // simple coin image
@@ -388,7 +398,7 @@ var GameScene2 = new Phaser.Class({
     // simple coin image
     this.load.image("stone", "assets/sprites/stone.png");
     this.load.image("shotgun", "assets/sprites/shotgun.png");
-
+    this.load.image("spread", "assets/sprites/shotgunspread.png");
     this.load.image('box', 'assets/sprites/amazonpackage.png');
     this.load.image('speed', 'assets/sprites/speed.png');
     this.load.image('jump', 'assets/sprites/jump.png');
@@ -442,7 +452,7 @@ var GameScene3 = new Phaser.Class({
     this.load.image("stone", "assets/sprites/stone.png");
     this.load.image("shotgun", "assets/sprites/shotgun.png");
     this.load.image("target", "assets/sprites/reticle.png");
-    // simple coin image
+    this.load.image("spread", "assets/sprites/shotgunspread.png");
     this.load.image('box', 'assets/sprites/amazonpackage.png');
     this.load.image('speed', 'assets/sprites/speed.png');
     this.load.image('jump', 'assets/sprites/jump.png');
@@ -465,6 +475,14 @@ var GameScene3 = new Phaser.Class({
   collectShotgun: collectShotgun
 });
 
+
+////////////////////////////////////////////////////////////////////////////
+// CORE GAME FUNCTIONS
+////////////////////////////////////////////////////////////////////////////
+
+
+
+
 function create() {
   // load the map
   map = this.make.tilemap({
@@ -475,7 +493,7 @@ function create() {
   enemySpeed = enemySpeed*diff;
   stacks = 1;
   timeintervals = [];
-
+  
   var tileset;
 
   switch(level){
@@ -546,6 +564,7 @@ function create() {
 
   player.setBounce(0.2); // our player will bounce from items
   player.setCollideWorldBounds(true); // don't go out of the map
+  player.currentWeaponType = currentWeaponType;
   this.physics.add.collider(worldLayer, player);
 
   reticle.setOrigin(0.5, 0.5).setDisplaySize(25, 25).setCollideWorldBounds(true);
@@ -558,7 +577,7 @@ function create() {
 
   //bottom part of screen text
   //points
-  text1 = this.add.text(400, 570, "Points: ", {
+  text1 = this.add.text(400, 570, "Points: "+score, {
     fontSize: '20px',
     fill: '#ffffff'
   });
@@ -740,22 +759,51 @@ function create() {
     if (player.active === false) {
       return;
     }
-
-    if (shotusedsingle === 1) {
-      var bullet = playerBullets.get().setActive(true).setVisible(true);
-      if (bullet) {
-
-        this.sound.add('bullet').play();
-        bullet.fire(player, reticle);
-
-        this.physics.add.collider(bullet, enemies, this.destroyEnemy);
-        this.physics.add.collider(bullet, worldLayer);
-        shotusedsingle = 0;
-
-        text2.setText("Ammo: " + shotusedsingle);
-
+    if (shotusedmult == 0){
+      if(player.currentWeaponType == "rock"){
+        if (shotusedsingle == 1) {
+          var bullet = playerBullets.get('bullet',12).setActive(true).setVisible(true);
+        
+          
+            
+            bullet.bornlimit = 1000;
+            this.sound.add('bullet').play();
+            bullet.fire(player, reticle, true);
+  
+            this.physics.add.collider(bullet, enemies, this.destroyEnemy);
+            this.physics.add.collider(bullet, worldLayer);
+            shotusedsingle = 0;
+  
+            text2.setText("Ammo: " + shotusedsingle);
+          }
       }
     }
+    
+    else if (shotusedmult > 0){
+      var bullet = playerBullets.get('spread',35).setActive(true).setVisible(true);
+      bullet.bornlimit = 2000;
+      this.sound.add('bullet').play();
+      bullet.fire(player, reticle, false);
+
+      this.physics.add.collider(bullet, enemies, this.destroyEnemy);
+      this.physics.add.collider(bullet, worldLayer);
+      shotusedmult--;
+
+      text2.setText("Ammo: " + shotusedmult);
+      if(shotusedmult == 0){
+        player.currentWeaponType = 'rock';
+        shotusedsingle = 1;
+        weaponEquipped.destroy();
+        weaponEquipped = this.physics.add.image(250, 580, 'bullet');
+        weaponEquipped.setScrollFactor(0);
+        text2.setText("Ammo: " + shotusedsingle);
+        console.log("out of shotgun ammo");
+      }
+    }
+      
+
+    
+    
 
   }, this);
 
@@ -956,11 +1004,13 @@ function update(time, delta) {
 function collectBox(player, box) {
   //boxLayer.removeTileAt(tile.x, tile.y); // remove the tile/coin
   this.sound.add('bullet').play();
-  if (box.powerup == 1){
+  if (box.weapon == 1){
     player.currentWeaponType = 'shotgun';
+    shotusedmult+=10;
     weaponEquipped.destroy();
     weaponEquipped = this.physics.add.image(250, 580, 'shotgun');
     weaponEquipped.setScrollFactor(0);
+    text2.setText("Ammo: " + shotusedmult);
     console.log("shotgun added");
   }
 
@@ -991,30 +1041,19 @@ function destroyEnemy(bullet, enemy) {
     game.sound.add('bullet').play();
 
     enemy.destroy();
-    bullet.destroy();
-    shotusedsingle = 1;
-    text2.setText("Ammo: " + shotusedsingle);
-
-    //playerBullets.get().setActive(false).setVisible(false);
-    //bullet.destroy();
-    /*if (stacks < maxSpawnRate - 10) {
-      stacks += 10 * diff * level;
-      if (stacks % (20 / diff) == 0) {
-        if (enemySpeed < 4*diff+level){
-          enemySpeed++;
-          console.log("enemies are faster");
-        }
-
-        intervalID = window.setInterval(this.spawnEnemy, maxSpawnRate - stacks);
-        console.log("new wave added");
-        console.log(intervalID);
-        timeintervals.push(intervalID);
-
-      }
-
-    }*/
+    if(bullet.type == "bullet"){
+      bullet.destroy();
+    }
+    
+    if (shotusedmult == 0){
+      shotusedsingle = 1;
+      text2.setText("Ammo: " + shotusedsingle);
+    }
+    else{
+      text2.setText("Ammo: " + shotusedmult);
+    }
     if (score > progressionThreshold*stacks) {
-        if (enemySpeed < 3*diff+level){
+        if (enemySpeed < 2*diff+level){
           enemySpeed+=.5;
           console.log("enemies are faster");
         }
