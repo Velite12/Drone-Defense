@@ -19,16 +19,30 @@ var text1;
 var text2;
 var text3;
 var text4;
+var text5;
+var text6;
+var text7;
+var text8;
 var weaponEquipped;
+var speedEquipped;
+var jumpEquipped;
+var invincibilityEquipped;
 var debugtext;
 
 
 //game var
 var weaponTypes = ['rock', 'bat', 'grenade', 'shotgun'];
 var currentWeaponType = 'rock';
+var powerupType = ['speed','jump','armor','invincibility']
+var currentPowerups = {
+  "speed":0,
+  "jump":0,
+  "invincibility":0,
+};
 var level = 1;
 var diff;
 var healthpoints;
+var jump;
 var reticle;
 var moveKeys;
 var stacks; //will ramp up the spawnrate
@@ -48,7 +62,7 @@ var playerBullets;
 var enemyBullets;
 var enemies;
 var boxes;
-
+var powerdur = 2500;
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,7 +147,6 @@ var Box = new Phaser.Class({
     function Box(scene) {
       //var boxsample = Phaser.GameObjects.Sprite.call(this, scene, 0, 0, 'box');
       this.type = this.generateType();
-      console.log(this.type);
       Phaser.GameObjects.Image.call(this, scene, 0, 0, this.type);
       this.speed = 0.0;
       this.born = 0;
@@ -145,21 +158,19 @@ var Box = new Phaser.Class({
       this.scene = scene;
       this.worldlayer = worldLayer;
       this.invinc = false;
-      this.powerup = this.getRandomInt(1,3);
-      console.log(this.invinc);
       this.setSize(14, 14, true);
       this.born;
     },
 
 
   generateType: function(){
-      // var selection = Math.floor(Math.random() * 101);
-      // if(selection > 89){
-      //   var selection = Math.floor(Math.random() * 6);
-      //
-      // }else{
-      //   return 'box';
-      // }
+      var selection = Math.floor(Math.random() * 101);
+      if(selection > 89){
+        var selection = this.getRandomInt(0,powerupType.length-1);
+        return powerupType[selection];
+      }else{
+        return 'box';
+      }
       return 'box';
   },
 
@@ -169,6 +180,7 @@ var Box = new Phaser.Class({
     console.log(this.powerup);
     this.posX = posx;
     this.posY = posy;
+
     this.invinc = invinc;
     //this.body.setCollideWorldBounds(true);
 
@@ -187,7 +199,7 @@ var Box = new Phaser.Class({
       if (!this.invinc){
         player.health--;
       }
-      
+
       this.destroy();
 
     }
@@ -201,41 +213,6 @@ var Box = new Phaser.Class({
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
-
-});
-
-///////////////////////////////////////////////////////////////////////////////
-
-var Powerup = new Phaser.Class({
-
-  Extends: Phaser.GameObjects.Image,
-
-  initialize:
-
-    // Box Constructor
-    function Powerup(scene) {
-      //var boxsample = Phaser.GameObjects.Sprite.call(this, scene, 0, 0, 'box');
-      Phaser.GameObjects.Image.call(this, scene, 0, 0, 'box');
-      this.speed = 0.0;
-      this.born = 0;
-      this.direction = 0;
-      this.xSpeed = 0;
-      this.ySpeed = 2;
-      this.scene = scene;
-      this.worldlayer = worldLayer;
-      this.invinc = false;
-      this.powerup = Box.getRandomInt(1,3);
-      console.log(this.invinc);
-      this.setSize(14, 14, true);
-      this.born;
-
-    },
-
-    getRandomInt: function(min, max) {
-      min = Math.ceil(min);
-      max = Math.floor(max);
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
 
 });
 
@@ -358,6 +335,10 @@ var GameScene1 = new Phaser.Class({
     this.load.image("target", "assets/sprites/reticle.png");
     // simple coin image
     this.load.image('box', 'assets/sprites/amazonpackage.png');
+    this.load.image('speed', 'assets/sprites/speed.png');
+    this.load.image('jump', 'assets/sprites/jump.png');
+    this.load.image('armor', 'assets/sprites/armor.png');
+    this.load.image("invincibility", 'assets/sprites/invincibility.png');
     this.load.image("enemy", 'assets/sprites/drone.png');
     // player animations
     //this.load.image('player', 'assets/sprites/neighbor.png');
@@ -405,9 +386,14 @@ var GameScene2 = new Phaser.Class({
     this.load.image("bullet", "assets/sprites/stone.png")
     this.load.image("target", "assets/sprites/reticle.png")
     // simple coin image
-    this.load.image('box', 'assets/sprites/amazonpackage.png');
     this.load.image("stone", "assets/sprites/stone.png");
     this.load.image("shotgun", "assets/sprites/shotgun.png");
+
+    this.load.image('box', 'assets/sprites/amazonpackage.png');
+    this.load.image('speed', 'assets/sprites/speed.png');
+    this.load.image('jump', 'assets/sprites/jump.png');
+    this.load.image('armor', 'assets/sprites/armor.png');
+    this.load.image("invincibility", 'assets/sprites/invincibility.png');
     this.load.image("enemy", 'assets/sprites/drone.png');
     // player animations
     //this.load.image('player', 'assets/sprites/neighbor.png');
@@ -458,6 +444,10 @@ var GameScene3 = new Phaser.Class({
     this.load.image("target", "assets/sprites/reticle.png");
     // simple coin image
     this.load.image('box', 'assets/sprites/amazonpackage.png');
+    this.load.image('speed', 'assets/sprites/speed.png');
+    this.load.image('jump', 'assets/sprites/jump.png');
+    this.load.image('armor', 'assets/sprites/armor.png');
+    this.load.image("invincibility", 'assets/sprites/invincibility.png');
     this.load.image("enemy", 'assets/sprites/drone.png');
     // player animations
     //this.load.image('player', 'assets/sprites/neighbor.png');
@@ -535,7 +525,8 @@ function create() {
 
   moveKeys = this.input.keyboard.addKeys({
     'left': Phaser.Input.Keyboard.KeyCodes.A,
-    'right': Phaser.Input.Keyboard.KeyCodes.D
+    'right': Phaser.Input.Keyboard.KeyCodes.D,
+    'up': Phaser.Input.Keyboard.KeyCodes.W
   });
   worldLayer.setCollisionByProperty({
     collides: true
@@ -590,7 +581,7 @@ function create() {
     fill: '#ffffff'
   });
   text4.setScrollFactor(0);
-  
+
   weaponEquipped = this.physics.add.image(250, 580, "stone");
   weaponEquipped.setScrollFactor(0);
   //debug
@@ -600,9 +591,44 @@ function create() {
   });
   debugtext.setScrollFactor(0);*/
 
+  text5 = this.add.text(700, 10, 'Powerups', {
+    fontSize: '20px',
+    fill: '#ffffff'
+  });
+  text5.setScrollFactor(0);
+
+  speedEquipped = this.physics.add.image(735, 40, "speed");
+  speedEquipped.setScrollFactor(0);
+
+  text6 = this.add.text(755, 35, '00%', {
+    fontSize: '15px',
+    fill: '#ffffff'
+  });
+  text6.setScrollFactor(0);
+
+  jumpEquipped = this.physics.add.image(735, 70, "jump");
+  jumpEquipped.setScrollFactor(0);
+
+  text7 = this.add.text(755, 65, '00%', {
+    fontSize: '15px',
+    fill: '#ffffff'
+  });
+  text7.setScrollFactor(0);
+
+  invincibilityEquipped = this.physics.add.image(735, 100, "invincibility");
+  invincibilityEquipped.setScrollFactor(0);
+
+  text8 = this.add.text(755, 95, '00%', {
+    fontSize: '15px',
+    fill: '#ffffff'
+  });
+  text8.setScrollFactor(0);
 
   // Set sprite variables
   player.health = 3;
+  player.speed = 175;
+  player.body.setGravityY(300);
+  jump = false;
   //enemy.health = 3;
   //enemy.lastFired = 0;
 
@@ -741,6 +767,11 @@ function create() {
 
 function update(time, delta) {
     const anims = this.anims;
+
+    if(cursors.up.isDown && jump) {
+      player.body.setVelocityY(-100);
+    }
+
     if (cursors.left.isDown) {
       if (this.game.input.pointers[0].isDown) {
         anims.create({
@@ -752,7 +783,7 @@ function update(time, delta) {
           frameRate: 10,
           repeat: -1
         });
-        player.body.setVelocityX(-175); // move left
+        player.body.setVelocityX(-player.speed); // move left
         player.anims.play('walkshoot', true); // play walk animation
         player.flipX = true; // flip the sprite to the left
       }
@@ -766,7 +797,7 @@ function update(time, delta) {
           frameRate: 10,
           repeat: -1
         });
-        player.body.setVelocityX(-175); // move left
+        player.body.setVelocityX(-player.speed); // move left
         player.anims.play('walk', true); // play walk animation
         player.flipX = true; // flip the sprite to the left
       }
@@ -782,7 +813,7 @@ function update(time, delta) {
           frameRate: 10,
           repeat: -1
         });
-        player.body.setVelocityX(175); // move left
+        player.body.setVelocityX(player.speed); // move left
         player.anims.play('walkshoot', true); // play walk animation
         player.flipX = false; // flip the sprite to the left
       }
@@ -796,7 +827,7 @@ function update(time, delta) {
           frameRate: 10,
           repeat: -1
         });
-        player.body.setVelocityX(175); // move right
+        player.body.setVelocityX(player.speed); // move right
         player.anims.play('walk', true); // play walk animatio
         player.flipX = false; // use the original sprite looking to the right
       }
@@ -841,6 +872,46 @@ function update(time, delta) {
     });
     //this.physics.add.collider(boxes, player);
     this.physics.add.overlap(player, boxes, this.collectBox, null, this);
+
+    if(currentPowerups.speed > 0){
+      // console.log('speed: '+currentPowerups.speed);
+      player.speed = 225;
+      currentPowerups.speed--;
+    }else{
+      player.speed = 175;
+    }
+
+    if(currentPowerups.jump >  0){
+      // console.log('jump: '+currentPowerups.jump);
+      jump = true;
+      currentPowerups.jump--;
+    }else{
+      jump = false
+    }
+
+    if(currentPowerups.armor > 0){
+      if(player.health + 1 < 6){
+          player.health += 1;
+      }else{
+          player.health = 5;
+      }
+
+      text3.setText("Health: " + player.health);
+      currentPowerups.armor = 0;
+    }
+
+    if (currentPowerups.invincibility > 0) {
+      // console.log('invin:' + currentPowerups.invincibility);
+      invincibility = true;
+      currentPowerups.invincibility--;
+    }else{
+      invincibility = false;
+    }
+
+    text6.setText(Math.floor((currentPowerups.speed/powerdur)*100)+"%");
+    text7.setText(Math.floor((currentPowerups.jump/powerdur)*100)+"%");
+    text8.setText(Math.floor((currentPowerups.invincibility/powerdur)*100)+"%");
+
     if (player.health == 0) {
       // Display word "Game Over" at center of the screen game
       var gameOverText = this.add.text(game.config.width / 4, game.config.height / 2, 'GAME OVER\n Press Ctrl+R to restart', {
@@ -867,7 +938,7 @@ function update(time, delta) {
           music3.stop();
           break;
       }
-      
+
       musicEnd= this.sound.add('end');
       musicEnd1= this.sound.add('sad');
       musicEnd.setLoop(true);
@@ -879,7 +950,7 @@ function update(time, delta) {
       this.scene.pause();
     }
     //drone.spawnEnemy();
-    
+
 }
 
 function collectBox(player, box) {
@@ -892,8 +963,24 @@ function collectBox(player, box) {
     weaponEquipped.setScrollFactor(0);
     console.log("shotgun added");
   }
+
+  switch (box.texture.key) {
+    case 'speed':
+        currentPowerups.speed = powerdur;
+    break;
+    case 'jump':
+      currentPowerups.jump = powerdur;
+    break;
+    case 'armor':
+      currentPowerups.armor = powerdur;
+    break;
+    case 'invincibility':
+      currentPowerups.invincibility = powerdur;
+    break;
+    default:
+      score++;
+  }
   box.destroy();
-  score++;
   text1.setText("Points: " + score);
   //generates more boxes
   return false;
@@ -917,12 +1004,12 @@ function destroyEnemy(bullet, enemy) {
           enemySpeed++;
           console.log("enemies are faster");
         }
-        
+
         intervalID = window.setInterval(this.spawnEnemy, maxSpawnRate - stacks);
         console.log("new wave added");
         console.log(intervalID);
         timeintervals.push(intervalID);
-        
+
       }
 
     }*/
@@ -936,28 +1023,28 @@ function destroyEnemy(bullet, enemy) {
           if(stacks < 2+diff+level){
             stacks++;
           }
-          
+
           console.log("new wave added");
           console.log(intervalID);
           timeintervals.push(intervalID);
         }
-        
-        
+
+
       }
 
-    
+
     score += 5;
     text1.setText("Points: " + score);
     return false;
 }
 
 function spawnEnemy(){
-  
+
   for(var i = 0; i < stacks; i++){
     var drone = enemies.get().setActive(true).setVisible(true);
     drone.spawnEnemy(invincibility,enemySpeed);
   }
-  
+
   return false;
 }
 

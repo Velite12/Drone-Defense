@@ -2,7 +2,7 @@
 // preloader and loading bar
 
 var Preloader = new Phaser.Class({
-	
+
 	Extends: Phaser.Scene,
 
 	initialize:
@@ -58,7 +58,7 @@ var Preloader = new Phaser.Class({
 		this.setPreloadSprite(this.loadingbar_fill);
 
 		// !! TESTING !! load the same image 500 times just to slow down the load and test the loading bar
-		for (var i = 0; i < 500; i++) {
+		for (var i = 0; i < 100; i++) {
 			this.load.image('testloading'+i, '../assets/tileset/custtiles1.png');
 		};
 		// !! TESTING !!
@@ -72,7 +72,7 @@ var Preloader = new Phaser.Class({
 		this.loadingbar_bg.destroy();
 		this.loadingbar_fill.destroy();
 		this.preloadSprite = null;
-		
+
 		if(window.location.hash){
 			// start actual game
 			console.log()
@@ -80,12 +80,12 @@ var Preloader = new Phaser.Class({
 				this.scene.start(''+window.location.hash.slice(1)+'');
 			}
 			else{
-				
+
 				this.scene.start('mainmenu');
 			}
 		}
 		else{
-				
+
 			this.scene.start('mainmenu');
 		}
 

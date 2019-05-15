@@ -9,21 +9,43 @@
     <style>
       html,
       body,
-      #game-container {
+      #game-container,
+      #parent-game-container {
         margin: 0;
         padding: 0;
       }
 
       #game-container {
-        min-width: 1vw;
-        min-height: 1vh;
+        width: 100%;
         display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #parent-game-container{
+        height: 100%;
+        display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
       }
 
       #game-container > canvas {
         border-radius: 5px;
+      }
+
+    body{
+        background-image: url("assets/bg/bg.jpg");
+    }
+
+      #logo{
+        background-color: white;
+        border-radius: 12px;
+        margin: 24px;
+        padding-left: 12px;
+        padding-right: 12px;
+        padding-top: -24px;
+        padding-bottom: -24px;
       }
     </style>
     <script src="//cdn.jsdelivr.net/npm/phaser@3.16.2/dist/phaser.js"></script>
@@ -35,18 +57,21 @@
   </head>
 
   <body>
-    <div id="game-container"></div>
+    <div id="parent-game-container">
+      <img id="logo" src="assets/branding/logo.png">
+      <div id="game-container"></div>
+    </div>
     <script>
     const config = {
         type: Phaser.AUTO,
         width: 800,
         height: 600,
-        parent: 'phaser-example',
+        parent: 'game-container',
         physics: {
             default: 'arcade',
             arcade: {
                 gravity: {y: 0},
-                debug: true
+                debug: false
             }
         },
         audio: {
