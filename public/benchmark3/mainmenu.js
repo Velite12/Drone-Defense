@@ -140,7 +140,7 @@ var LevelMenu = new Phaser.Class({
     this.firstLevel = this.addButton(400, 260, 'buttons', this.launchLevelOne, this, 'level1ButtonHover', 'level1Button', 'level1ButtonHover', 'level1Button');
     this.twoLevel = this.addButton(400, 300, 'buttons', this.launchLevelTwo, this, 'level2ButtonHover', 'level2Button', 'level2ButtonHover', 'level2Button');
     this.threeLevel = this.addButton(400, 340, 'buttons', this.launchLevelThree, this, 'level3ButtonHover', 'level3Button', 'level3ButtonHover', 'level3Button');
-    
+
   },
 
   doReturn: function() {
@@ -314,7 +314,7 @@ var HelpMenu = new Phaser.Class({
     this.add.text(50, 270, "Story", headerStyle);
     this.add.text(50, 290, story, textStyle);
     this.add.text(500, 270, "Characters", headerStyle);
-    this.add.text(500, 290, story, textStyle);
+    this.add.text(500, 290, characters, textStyle);
 
     // add tutorial and start button
     this.exit = this.addButton(400, 420, 'buttons', this.doReturn, this, 'returnButtonHover', 'returnButton', 'returnButtonHover', 'returnButton');
