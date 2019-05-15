@@ -129,11 +129,11 @@ var Bullet = new Phaser.Class({
       if (this.type == 'bullet'){
         shotusedsingle = 1;
         text2.setText("Ammo: " + shotusedsingle);
-        this.destroy();
+        playerBullets.remove(this, true, true);
       }
       else if (this.type == 'spread'){
         text2.setText("Ammo: " + shotusedmult);
-        this.destroy();
+        playerBullets.remove(this, true, true);
       }
       
 
@@ -205,11 +205,11 @@ var Box = new Phaser.Class({
       //this.setVisible(false);
       //shotusedsingle = 1;
       //text2.setText("Ammo: "+shotusedsingle);
-      if (!this.invinc){
+      if (!player.invincibility){
         player.health--;
       }
 
-      this.destroy();
+      boxes.remove(this, true, true);
 
     }
 
@@ -300,7 +300,7 @@ var Enemy = new Phaser.Class({
       //this.ySpeed = 2;
       this.y -= this.ySpeed;
       if (this.y <= 5) {
-        this.destroy();
+        enemies.remove(this, true, true);
       }
     }
 
@@ -565,6 +565,7 @@ function create() {
   player.setBounce(0.2); // our player will bounce from items
   player.setCollideWorldBounds(true); // don't go out of the map
   player.currentWeaponType = currentWeaponType;
+  player.invincibility = invincibility;
   this.physics.add.collider(worldLayer, player);
 
   reticle.setOrigin(0.5, 0.5).setDisplaySize(25, 25).setCollideWorldBounds(true);
@@ -668,15 +669,15 @@ function create() {
 
   //toggle invincibility
   this.input.keyboard.on('keydown_I', function(event) {
-    if (invincibility)
-      invincibility = false;
+    if (player.invincibility)
+      player.invincibility = false;
 
     else{
-      invincibility = true;
+      player.invincibility = true;
       player.health = 3;
     }
 
-    console.log("invincibility: ",invincibility);
+    console.log("invincibility: ",player.invincibility);
   }, 0, this);
 
   this.input.keyboard.on('keydown_ZERO', function(event) {
@@ -963,10 +964,10 @@ function update(time, delta) {
 
     if (currentPowerups.invincibility > 0) {
       // console.log('invin:' + currentPowerups.invincibility);
-      invincibility = true;
+      player.invincibility = true;
       currentPowerups.invincibility--;
     }else{
-      invincibility = false;
+      player.invincibility = false;
     }
 
     text6.setText(Math.floor((currentPowerups.speed/powerdur)*100)+"%");
@@ -1043,9 +1044,10 @@ function collectBox(player, box) {
     default:
       score++;
   }
-  box.destroy();
+  boxes.remove(box, true, true);
   text1.setText("Points: " + score);
   //generates more boxes
+ 
   return false;
 }
 
@@ -1053,7 +1055,7 @@ function destroyEnemy(bullet, enemy) {
     //boxLayer.removeTileAt(tile.x, tile.y); // remove the tile/coin
     game.sound.add('bullet').play();
 
-    enemy.destroy();
+    enemies.remove(enemy, true, true);
     if(bullet.type == "bullet"){
       bullet.destroy();
     }
@@ -1080,9 +1082,10 @@ function destroyEnemy(bullet, enemy) {
           console.log(intervalID);
           timeintervals.push(intervalID);
         }
+      
 
 
-      }
+    }
 
 
     score += 5;
@@ -1103,7 +1106,7 @@ function spawnEnemy(){
 function collectShotgun(player, box) {
   //boxLayer.removeTileAt(tile.x, tile.y); // remove the tile/coin
   this.sound.add('bullet').play();
-  box.destroy();
+  boxes.remove(box, true, true);
   score++;
   text1.setText("Points: " + score);
   //generates more boxes
