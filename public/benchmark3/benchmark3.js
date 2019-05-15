@@ -19,7 +19,14 @@ var text1;
 var text2;
 var text3;
 var text4;
+var text5;
+var text6;
+var text7;
+var text8;
 var weaponEquipped;
+var speedEquipped;
+var jumpEquipped;
+var invincibilityEquipped;
 var debugtext;
 
 
@@ -27,7 +34,11 @@ var debugtext;
 var weaponTypes = ['rock', 'bat', 'grenade', 'shotgun'];
 var currentWeaponType = 'rock';
 var powerupType = ['speed','jump','armor','invincibility']
-var currentPowerups = {};
+var currentPowerups = {
+  "speed":0,
+  "jump":0,
+  "invincibility":0,
+};
 var level = 1;
 var diff;
 var healthpoints;
@@ -51,7 +62,7 @@ var playerBullets;
 var enemyBullets;
 var enemies;
 var boxes;
-
+var powerdur = 2500;
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -136,7 +147,6 @@ var Box = new Phaser.Class({
     function Box(scene) {
       //var boxsample = Phaser.GameObjects.Sprite.call(this, scene, 0, 0, 'box');
       this.type = this.generateType();
-      console.log(this.type);
       Phaser.GameObjects.Image.call(this, scene, 0, 0, this.type);
       this.speed = 0.0;
       this.born = 0;
@@ -576,6 +586,38 @@ function create() {
   });
   debugtext.setScrollFactor(0);*/
 
+  text5 = this.add.text(700, 10, 'Powerups', {
+    fontSize: '20px',
+    fill: '#ffffff'
+  });
+  text5.setScrollFactor(0);
+
+  speedEquipped = this.physics.add.image(735, 40, "speed");
+  speedEquipped.setScrollFactor(0);
+
+  text6 = this.add.text(755, 35, '00%', {
+    fontSize: '15px',
+    fill: '#ffffff'
+  });
+  text6.setScrollFactor(0);
+
+  jumpEquipped = this.physics.add.image(735, 70, "jump");
+  jumpEquipped.setScrollFactor(0);
+
+  text7 = this.add.text(755, 65, '00%', {
+    fontSize: '15px',
+    fill: '#ffffff'
+  });
+  text7.setScrollFactor(0);
+
+  invincibilityEquipped = this.physics.add.image(735, 100, "invincibility");
+  invincibilityEquipped.setScrollFactor(0);
+
+  text8 = this.add.text(755, 95, '00%', {
+    fontSize: '15px',
+    fill: '#ffffff'
+  });
+  text8.setScrollFactor(0);
 
   // Set sprite variables
   player.health = 3;
@@ -858,6 +900,10 @@ function update(time, delta) {
       invincibility = false;
     }
 
+    text6.setText(Math.floor((currentPowerups.speed/powerdur)*100)+"%");
+    text7.setText(Math.floor((currentPowerups.jump/powerdur)*100)+"%");
+    text8.setText(Math.floor((currentPowerups.invincibility/powerdur)*100)+"%");
+
     if (player.health == 0) {
       // Display word "Game Over" at center of the screen game
       var gameOverText = this.add.text(game.config.width / 4, game.config.height / 2, 'GAME OVER\n Press Ctrl+R to restart', {
@@ -910,22 +956,18 @@ function collectBox(player, box) {
     console.log("shotgun added");
   }
 
-  sec = 500;
-
-  console.log(box.texture.key);
-
   switch (box.texture.key) {
     case 'speed':
-        currentPowerups.speed = 5*sec;
+        currentPowerups.speed = powerdur;
     break;
     case 'jump':
-      currentPowerups.jump = 5*sec;
+      currentPowerups.jump = powerdur;
     break;
     case 'armor':
-      currentPowerups.armor = 5*sec;
+      currentPowerups.armor = powerdur;
     break;
     case 'invincibility':
-      currentPowerups.invincibility = 2*sec;
+      currentPowerups.invincibility = powerdur;
     break;
     default:
       score++;
