@@ -759,47 +759,60 @@ function create() {
     if (player.active === false) {
       return;
     }
-    if (shotusedmult == 0){
-      if(player.currentWeaponType == "rock"){
-        if (shotusedsingle == 1) {
-          var bullet = playerBullets.get('bullet',12).setActive(true).setVisible(true);
-        
+    if (pointer.rightButtonDown() == false){
+      if (shotusedmult == 0){
+        if(player.currentWeaponType == "rock"){
+          if (shotusedsingle == 1) {
+            var bullet = playerBullets.get('bullet',12).setActive(true).setVisible(true);
           
             
-            bullet.bornlimit = 1000;
-            this.sound.add('bullet').play();
-            bullet.fire(player, reticle, true);
+              
+              bullet.bornlimit = 1000;
+              this.sound.add('bullet').play();
+              bullet.fire(player, reticle, true);
+    
+              this.physics.add.collider(bullet, enemies, this.destroyEnemy);
+              this.physics.add.collider(bullet, worldLayer);
+              shotusedsingle = 0;
+    
+              text2.setText("Ammo: " + shotusedsingle);
+            }
+        }
+      }
+      
+      else if (shotusedmult > 0){
+        var bullet = playerBullets.get('spread',35).setActive(true).setVisible(true);
+        bullet.bornlimit = 2000;
+        this.sound.add('bullet').play();
+        bullet.fire(player, reticle, false);
   
-            this.physics.add.collider(bullet, enemies, this.destroyEnemy);
-            this.physics.add.collider(bullet, worldLayer);
-            shotusedsingle = 0;
+        this.physics.add.collider(bullet, enemies, this.destroyEnemy);
+        this.physics.add.collider(bullet, worldLayer);
+        shotusedmult--;
   
-            text2.setText("Ammo: " + shotusedsingle);
-          }
+        text2.setText("Ammo: " + shotusedmult);
+        if(shotusedmult == 0){
+          player.currentWeaponType = 'rock';
+          shotusedsingle = 1;
+          weaponEquipped.destroy();
+          weaponEquipped = this.physics.add.image(250, 580, 'bullet');
+          weaponEquipped.setScrollFactor(0);
+          text2.setText("Ammo: " + shotusedsingle);
+          console.log("out of shotgun ammo");
+        }
+      }
+    }
+    else if (pointer.rightButtonDown() == true){
+      if (shotusedmult > 0){
+        if (player.currentWeapontType == 'rock'){
+          player.currentWeaponType == 'shotgun'
+        }
+        else{
+          player.currentWeapontType == 'rock'
+        }
       }
     }
     
-    else if (shotusedmult > 0){
-      var bullet = playerBullets.get('spread',35).setActive(true).setVisible(true);
-      bullet.bornlimit = 2000;
-      this.sound.add('bullet').play();
-      bullet.fire(player, reticle, false);
-
-      this.physics.add.collider(bullet, enemies, this.destroyEnemy);
-      this.physics.add.collider(bullet, worldLayer);
-      shotusedmult--;
-
-      text2.setText("Ammo: " + shotusedmult);
-      if(shotusedmult == 0){
-        player.currentWeaponType = 'rock';
-        shotusedsingle = 1;
-        weaponEquipped.destroy();
-        weaponEquipped = this.physics.add.image(250, 580, 'bullet');
-        weaponEquipped.setScrollFactor(0);
-        text2.setText("Ammo: " + shotusedsingle);
-        console.log("out of shotgun ammo");
-      }
-    }
       
 
     
@@ -828,7 +841,7 @@ function update(time, delta) {
             start: 5,
             end: 8
           }),
-          frameRate: 10,
+          frameRate: 5,
           repeat: -1
         });
         player.body.setVelocityX(-player.speed); // move left
@@ -842,7 +855,7 @@ function update(time, delta) {
             start: 1,
             end: 4
           }),
-          frameRate: 10,
+          frameRate: 5,
           repeat: -1
         });
         player.body.setVelocityX(-player.speed); // move left
@@ -858,7 +871,7 @@ function update(time, delta) {
             start: 5,
             end: 8
           }),
-          frameRate: 10,
+          frameRate: 5,
           repeat: -1
         });
         player.body.setVelocityX(player.speed); // move left
@@ -872,7 +885,7 @@ function update(time, delta) {
             start: 1,
             end: 4
           }),
-          frameRate: 10,
+          frameRate: 5,
           repeat: -1
         });
         player.body.setVelocityX(player.speed); // move right
@@ -888,7 +901,7 @@ function update(time, delta) {
             start: 5,
             end: 8
           }),
-          frameRate: 10,
+          frameRate: 5,
           repeat: -1
         });
         player.body.setVelocityX(0);
@@ -901,7 +914,7 @@ function update(time, delta) {
             key: 'player',
             frame: 0
           }],
-          frameRate: 20
+          frameRate: 5
         });
         player.body.setVelocityX(0);
         player.anims.play('idle', true);
