@@ -27,10 +27,11 @@ var debugtext;
 var weaponTypes = ['rock', 'bat', 'grenade', 'shotgun'];
 var currentWeaponType = 'rock';
 var powerupType = ['speed','jump','armor','invincibility']
-var currentPowerups = [];
+var currentPowerups = {};
 var level = 1;
 var diff;
 var healthpoints;
+var jump;
 var reticle;
 var moveKeys;
 var stacks; //will ramp up the spawnrate
@@ -153,7 +154,7 @@ var Box = new Phaser.Class({
   generateType: function(){
       var selection = Math.floor(Math.random() * 101);
       if(selection > 89){
-        var selection = this,getRandomInt(0,powerupType.length);
+        var selection = this.getRandomInt(0,powerupType.length-1);
         return powerupType[selection];
       }else{
         return 'box';
@@ -164,7 +165,6 @@ var Box = new Phaser.Class({
   spawnBox: function(posx, posy, invinc) {
     this.born = 1;
     this.setPosition(Math.floor(posx), Math.floor(posy) + 20);
-    console.log(this.powerup);
 
     this.invinc = invinc;
     //this.body.setCollideWorldBounds(true);
@@ -510,7 +510,8 @@ function create() {
 
   moveKeys = this.input.keyboard.addKeys({
     'left': Phaser.Input.Keyboard.KeyCodes.A,
-    'right': Phaser.Input.Keyboard.KeyCodes.D
+    'right': Phaser.Input.Keyboard.KeyCodes.D,
+    'up': Phaser.Input.Keyboard.KeyCodes.W
   });
   worldLayer.setCollisionByProperty({
     collides: true
@@ -578,6 +579,9 @@ function create() {
 
   // Set sprite variables
   player.health = 3;
+  player.speed = 175;
+  player.body.setGravityY(300);
+  jump = false;
   //enemy.health = 3;
   //enemy.lastFired = 0;
 
@@ -716,6 +720,11 @@ function create() {
 
 function update(time, delta) {
     const anims = this.anims;
+
+    if(cursors.up.isDown && jump) {
+      player.body.setVelocityY(-100);
+    }
+
     if (cursors.left.isDown) {
       if (this.game.input.pointers[0].isDown) {
         anims.create({
@@ -727,7 +736,7 @@ function update(time, delta) {
           frameRate: 10,
           repeat: -1
         });
-        player.body.setVelocityX(-175); // move left
+        player.body.setVelocityX(-player.speed); // move left
         player.anims.play('walkshoot', true); // play walk animation
         player.flipX = true; // flip the sprite to the left
       }
@@ -741,7 +750,7 @@ function update(time, delta) {
           frameRate: 10,
           repeat: -1
         });
-        player.body.setVelocityX(-175); // move left
+        player.body.setVelocityX(-player.speed); // move left
         player.anims.play('walk', true); // play walk animation
         player.flipX = true; // flip the sprite to the left
       }
@@ -757,7 +766,7 @@ function update(time, delta) {
           frameRate: 10,
           repeat: -1
         });
-        player.body.setVelocityX(175); // move left
+        player.body.setVelocityX(player.speed); // move left
         player.anims.play('walkshoot', true); // play walk animation
         player.flipX = false; // flip the sprite to the left
       }
@@ -771,7 +780,7 @@ function update(time, delta) {
           frameRate: 10,
           repeat: -1
         });
-        player.body.setVelocityX(175); // move right
+        player.body.setVelocityX(player.speed); // move right
         player.anims.play('walk', true); // play walk animatio
         player.flipX = false; // use the original sprite looking to the right
       }
@@ -813,6 +822,42 @@ function update(time, delta) {
     this.physics.add.collider(boxes, worldLayer);
     //this.physics.add.collider(boxes, player);
     this.physics.add.overlap(player, boxes, this.collectBox, null, this);
+
+    if(currentPowerups.speed > 0){
+      // console.log('speed: '+currentPowerups.speed);
+      player.speed = 225;
+      currentPowerups.speed--;
+    }else{
+      player.speed = 175;
+    }
+
+    if(currentPowerups.jump >  0){
+      // console.log('jump: '+currentPowerups.jump);
+      jump = true;
+      currentPowerups.jump--;
+    }else{
+      jump = false
+    }
+
+    if(currentPowerups.armor > 0){
+      if(player.health + 1 < 6){
+          player.health += 1;
+      }else{
+          player.health = 5;
+      }
+
+      text3.setText("Health: " + player.health);
+      currentPowerups.armor = 0;
+    }
+
+    if (currentPowerups.invincibility > 0) {
+      // console.log('invin:' + currentPowerups.invincibility);
+      invincibility = true;
+      currentPowerups.invincibility--;
+    }else{
+      invincibility = false;
+    }
+
     if (player.health == 0) {
       // Display word "Game Over" at center of the screen game
       var gameOverText = this.add.text(game.config.width / 4, game.config.height / 2, 'GAME OVER\n Press Ctrl+R to restart', {
@@ -864,8 +909,28 @@ function collectBox(player, box) {
     weaponEquipped.setScrollFactor(0);
     console.log("shotgun added");
   }
+
+  sec = 500;
+
+  console.log(box.texture.key);
+
+  switch (box.texture.key) {
+    case 'speed':
+        currentPowerups.speed = 5*sec;
+    break;
+    case 'jump':
+      currentPowerups.jump = 5*sec;
+    break;
+    case 'armor':
+      currentPowerups.armor = 5*sec;
+    break;
+    case 'invincibility':
+      currentPowerups.invincibility = 2*sec;
+    break;
+    default:
+      score++;
+  }
   box.destroy();
-  score++;
   text1.setText("Points: " + score);
   //generates more boxes
   return false;

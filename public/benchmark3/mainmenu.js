@@ -195,9 +195,11 @@ var ControlsMenu = new Phaser.Class({
     var logo = this.add.sprite(400, 140, 'logo');
 
     var controls = [
-      "Move Left = Left key",
+      "Move Left = Left/A",
       "",
-      "Move Right = Right key",
+      "Move Right = Right/D",
+      "",
+      "Jump = Up/W",
       "",
       "Aiming = Mouse",
       "",
