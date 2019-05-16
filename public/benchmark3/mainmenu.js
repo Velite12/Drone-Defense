@@ -121,6 +121,8 @@ var LevelMenu = new Phaser.Class({
     // map made with Tiled in JSON format
     window.location.hash = "levelmenu";
     this.load.image("tiles", "assets/tileset/custtiles1.png");
+    this.load.image("tiles2", "assets/tileset/custtiles2.png");
+    this.load.image("tiles3", "assets/tileset/custtiles3.png");
     this.load.image("logo", "assets/branding/logo.png");
     this.load.tilemapTiledJSON('map', 'assets/tilemap/level1map.json');
   },
@@ -132,6 +134,8 @@ var LevelMenu = new Phaser.Class({
     });
 
     const tileset = map.addTilesetImage("custtiles1", "tiles");
+    const tileset2 = map.addTilesetImage("custtiles2", "tiles2");
+    const tileset3 = map.addTilesetImage("custtiles2", "tiles3");
     worldLayer = map.createDynamicLayer("BackLayer", tileset, 0, 0);
     var logo = this.add.sprite(400, 140, 'logo');
 
@@ -151,17 +155,20 @@ var LevelMenu = new Phaser.Class({
 
   launchLevelOne: function() {
 
-    this.scene.start('gamescene1');
+    window.location.hash = 'gamescene1';
+    location.reload();
   },
 
   launchLevelTwo: function() {
 
-    this.scene.start('gamescene2');
+    window.location.hash = 'gamescene2';
+    location.reload();
   },
 
   launchLevelThree: function() {
 
-    this.scene.start('gamescene3');
+    window.location.hash = 'gamescene3';
+    location.reload();
   }
 
 });

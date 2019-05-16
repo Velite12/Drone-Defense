@@ -1,4 +1,4 @@
-/* TODO: fix bullet
+/* TODO: Enable boss
 */
 //settings var
 var clock;
@@ -9,7 +9,9 @@ var paused;
 //important var
 var cursors;
 var worldLayer, boxLayer;
-var bossspawned = false;
+var bosspawned = false;
+var sceneStarted = false;
+var scene;
 
 //ui var
 var score = 0;
@@ -55,12 +57,15 @@ var timescale; //time in normal form, scaled to be readable
 var timeintervals;
 var enemySpeed = 2;
 var progressionThreshold = 30; //amount of points needed to progress enemy difficulty in-level
+var bosshealth = 50;
+var bossdefeated = false;
 
 //class groups
 var playerBullets;
 var enemyBullets;
 var enemies;
 var boxes;
+var bosses;
 var powerdur = 2500;
 
 
@@ -229,13 +234,13 @@ var Box = new Phaser.Class({
 
 var Enemy = new Phaser.Class({
 
-  Extends: Phaser.GameObjects.Image,
+  Extends: Phaser.GameObjects.Sprite,
 
   initialize:
 
     // Enemy Constructor
     function Enemy(scene) {
-      Phaser.GameObjects.Image.call(this, scene, 0, 0, 'enemy');
+      Phaser.GameObjects.Sprite.call(this, scene, 0, 0, 'enemy');
       this.speed = 0.0;
       this.born = 0;
       this.direction = 0;
@@ -258,6 +263,14 @@ var Enemy = new Phaser.Class({
     this.xSpeed = speed;
     this.ySpeed = speed;
     this.setPosition(800*(this.originX), this.originY);
+
+
+  },
+  spawnEnemyBoss: function(posx, posy, invinc) {
+    this.invinc = invinc;
+    this.xSpeed = 2;
+    this.ySpeed = 2;
+    this.setPosition(posx, posy);
 
 
   },
@@ -320,6 +333,7 @@ var Boss = new Phaser.Class({
     // Boss Constructor
     function Boss(scene) {
       Phaser.GameObjects.Image.call(this, scene, 0, 0, 'boss');
+      this.setDepth(0);
       this.speed = 0.0;
       this.born = 0;
       this.direction = 0;
@@ -330,10 +344,10 @@ var Boss = new Phaser.Class({
       this.destination1 = 600;
       this.destination2= 200;
       this.originX = 400;
-      this.originY = 400;
+      this.originY = 100;
       this.reachedDest = 0;
       this.scene = scene;
-      this.setSize(200, 200, true);
+      this.setSize(190, 130, true);
 
 
     },
@@ -349,18 +363,28 @@ var Boss = new Phaser.Class({
   update: function(time, delta) {
 
     if(this.reachedDest == 0){ //has not moved yet
-      this.reachedDest  = getRandomInt(1,2);
+      this.reachedDest  = this.getRandomInt(1,2);
     }
     else if (this.reachedDest == 1){ //heading right
       this.x += this.xSpeed;
       if (this.x > this.destination1){
-        this.reachedDest == 2;
+        this.reachedDest = 2;
+        
+        for(var i = 0; i < 2; i++){
+          var enemySpawn = enemies.get();
+          enemySpawn.spawnEnemyBoss(this.x+30*i, this.y+45, player.invincibility);
+        }
+        for(var i = 0; i < 2; i++){
+          var enemySpawn = enemies.get();
+          enemySpawn.spawnEnemyBoss(this.x-30*i, this.y+45, player.invincibility);
+        }
+        
       }
     }
     else if (this.reachedDest == 2){ //heading left
       this.x -= this.xSpeed;
-      if (this.x < this.destination1){
-        this.reachedDest == 1;
+      if (this.x < this.destination2){
+        this.reachedDest = 1;
       }
     }
 
@@ -390,6 +414,7 @@ var GameScene1 = new Phaser.Class({
 
   preload: function() {
     level = 1;
+    time = 0;
     window.location.hash = "gamescene1";
 
     this.load.audio('bgmusic1', ['assets/audio/lvl1.mp3', 'assets/audio/lvl1.ogg']);
@@ -422,6 +447,7 @@ var GameScene1 = new Phaser.Class({
       frameWidth: 11,
       frameHeight: 25
     });
+    this.load.image('dronedeath', 'assets/sprites/droneDying.png');
   },
 
   create: create,
@@ -429,7 +455,9 @@ var GameScene1 = new Phaser.Class({
   collectBox: collectBox,
   destroyEnemy: destroyEnemy,
   spawnEnemy: spawnEnemy,
-  collectShotgun: collectShotgun
+  collectShotgun: collectShotgun,
+  spawnBoss: spawnBoss,
+  destroyBoss: destroyBoss
 });
 
 var GameScene2 = new Phaser.Class({
@@ -446,6 +474,7 @@ var GameScene2 = new Phaser.Class({
 
   preload: function() {
     level = 2;
+    time = 0;
     window.location.hash = "gamescene2";
 
     this.load.audio('bgmusic2', ['assets/audio/lvl2.mp3', 'assets/audio/lvl2.ogg']);
@@ -478,6 +507,7 @@ var GameScene2 = new Phaser.Class({
       frameWidth: 11,
       frameHeight: 25
     });
+    this.load.image('dronedeath', 'assets/sprites/droneDying.png');
   },
 
   create: create,
@@ -485,7 +515,9 @@ var GameScene2 = new Phaser.Class({
   collectBox: collectBox,
   destroyEnemy: destroyEnemy,
   spawnEnemy: spawnEnemy,
-  collectShotgun: collectShotgun
+  collectShotgun: collectShotgun,
+  spawnBoss: spawnBoss,
+  destroyBoss: destroyBoss
 });
 
 var GameScene3 = new Phaser.Class({
@@ -502,6 +534,7 @@ var GameScene3 = new Phaser.Class({
 
   preload: function() {
     level = 3;
+    time = 0;
     window.location.hash = "gamescene3";
 
     this.load.audio('bgmusic3', ['assets/audio/lvl3.mp3', 'assets/audio/lvl3.ogg']);
@@ -533,6 +566,7 @@ var GameScene3 = new Phaser.Class({
       frameWidth: 11,
       frameHeight: 25
     });
+    this.load.image('dronedeath', 'assets/sprites/droneDying.png');
   },
 
   create: create,
@@ -540,7 +574,9 @@ var GameScene3 = new Phaser.Class({
   collectBox: collectBox,
   destroyEnemy: destroyEnemy,
   spawnEnemy: spawnEnemy,
-  collectShotgun: collectShotgun
+  collectShotgun: collectShotgun,
+  spawnBoss: spawnBoss,
+  destroyBoss: destroyBoss
 });
 
 
@@ -561,7 +597,7 @@ function create() {
   enemySpeed = enemySpeed*diff;
   stacks = 1;
   timeintervals = [];
-
+  bosshealth*= level;
   var tileset;
 
   switch(level){
@@ -605,6 +641,11 @@ function create() {
     classType: Enemy,
     runChildUpdate: true
   });
+  bosses = this.physics.add.group({
+
+    classType: Boss,
+    runChildUpdate: true
+  });
 
 
   worldLayer = map.createDynamicLayer("BackLayer", tileset, 0, 0);
@@ -635,8 +676,9 @@ function create() {
   player.currentWeaponType = currentWeaponType;
   player.invincibility = invincibility;
   this.physics.add.collider(worldLayer, player);
-
+  
   reticle.setOrigin(0.5, 0.5).setDisplaySize(25, 25).setCollideWorldBounds(true);
+  reticle.setDepth(3);
   cursors = this.input.keyboard.createCursorKeys();
 
 
@@ -722,7 +764,7 @@ function create() {
 
   // Fires bullet from player on left click of mouse
 
-
+  this.scene = this;
 
   // Pointer lock will only work after mousedown
   game.canvas.addEventListener('mousedown', function() {
@@ -839,6 +881,7 @@ function create() {
               bullet.fire(player, reticle, true);
 
               this.physics.add.collider(bullet, enemies, this.destroyEnemy);
+              this.physics.add.collider(bullet, bosses, this.destroyBoss);
               this.physics.add.collider(bullet, worldLayer);
               shotusedsingle = 0;
 
@@ -854,6 +897,7 @@ function create() {
         bullet.fire(player, reticle, false);
 
         this.physics.add.collider(bullet, enemies, this.destroyEnemy);
+        this.physics.add.collider(bullet, bosses, this.destroyBoss);
         this.physics.add.collider(bullet, worldLayer);
         shotusedmult--;
 
@@ -891,11 +935,15 @@ function create() {
 
   intervalID = window.setInterval(this.spawnEnemy, maxSpawnRate);
   timeintervals.push(intervalID);
+  time = 0;
 }
 
 function update(time, delta) {
     const anims = this.anims;
-
+    if(time > 0 && sceneStarted == false){
+      time = 0;
+      sceneStarted = true;
+    }
     if(cursors.up.isDown && jump) {
       player.body.setVelocityY(-100);
     }
@@ -972,7 +1020,7 @@ function update(time, delta) {
           repeat: -1
         });
         player.body.setVelocityX(0);
-        player.anims.play('walkshoot', true); // play walk animation
+        player.anims.play('idleshoot', true); // play walk animation
       }
       else{
         anims.create({
@@ -1069,19 +1117,19 @@ function update(time, delta) {
           break;
       }
 
-      musicEnd= this.sound.add('end');
+      //musicEnd= this.sound.add('end');
       musicEnd1= this.sound.add('sad');
-      musicEnd.setLoop(true);
+      //musicEnd.setLoop(true);
       musicEnd1.setLoop(true);
-      musicEnd.play();
+     // musicEnd.play();
       musicEnd1.play();
 
 
       this.scene.pause();
     }
     if (score >= 300 && level == 1) {
-      // Display word "Game Over" at center of the screen game
-      var victoryText = this.add.text(game.config.width / 4, game.config.height / 2, 'Level Cleared', {
+      
+      var victoryText = this.add.text(game.config.width / 4, game.config.height / 2, 'Level Cleared! Score: '+Math.ceil(score/timescale), {
         fontSize: '32px',
         fill: '#fff'
       });
@@ -1096,7 +1144,7 @@ function update(time, delta) {
       intervalID = window.setInterval(function(){
         window.location.hash = 'gamescene2';
         location.reload();
-      }, 500);
+      }, 2500);
       switch(level){
         case 1:
           music1.stop();
@@ -1119,7 +1167,7 @@ function update(time, delta) {
 
       this.scene.pause();
     }
-    if (score >= 2 && level == 2 && bossspawned == false) {
+    if (score >= 300 && (level == 2 || level == 3) && bosspawned == false) {
       // Display word "Game Over" at center of the screen game
       var incomingText = this.add.text(game.config.width / 4, game.config.height / 2, 'Incoming!', {
         fontSize: '32px',
@@ -1133,10 +1181,61 @@ function update(time, delta) {
       timeintervals.forEach(function(element) {
         clearInterval(element);
       });
+      intervalID = window.setTimeout(function(){
+        incomingText.setVisible(false);
+        this.spawnBoss();
+      }, 2500);
+      bosspawned = true;
+    }
+    if(bossdefeated){
+      score += 500;
+      text1.setText("Points: " + score);
+      var victoryText = this.add.text(game.config.width / 4, game.config.height / 2, 'Level Cleared! Score: '+Math.ceil(score/timescale), {
+        fontSize: '32px',
+        fill: '#fff'
+      });
+
+      // Set z-index just in case your text show behind the background.
+      victoryText.setDepth(1);
+      //game.lockRender = true;
+      this.paused = 1;
+      timeintervals.forEach(function(element) {
+        clearInterval(element);
+      });
       intervalID = window.setInterval(function(){
-        incomingText.destroy();
-      }, 500);
-      
+        if (level == 2){
+          window.location.hash = 'gamescene3';
+          
+          location.reload();
+        }
+        else{
+          window.location.hash = 'mainmenu';
+          
+          location.reload();
+        }
+        
+      }, 2500);
+      switch(level){
+        case 1:
+          music1.stop();
+          break;
+        case 2:
+          music2.stop();
+          break;
+        case 3:
+          music3.stop();
+          break;
+      }
+
+      musicEnd= this.sound.add('end');
+      //musicEnd1= this.sound.add('sad');
+      musicEnd.setLoop(true);
+    //musicEnd1.setLoop(true);
+      musicEnd.play();
+      //musicEnd1.play();
+
+
+      this.scene.pause();
     }
 
 }
@@ -1177,7 +1276,7 @@ function collectBox(player, box) {
       }
       score++;
   }
-
+  
 
   boxes.remove(box, true, true);
   if(boxes.countActive(true) == 0){
@@ -1193,43 +1292,41 @@ function collectBox(player, box) {
 function destroyEnemy(bullet, enemy) {
     //boxLayer.removeTileAt(tile.x, tile.y); // remove the tile/coin
     game.sound.add('bullet').play();
+      enemies.remove(enemy, true, true);
+      if(bullet.type == "bullet"){
+        bullet.destroy();
+      }
 
-    enemies.remove(enemy, true, true);
-    if(bullet.type == "bullet"){
-      bullet.destroy();
-    }
-
-    if (shotusedmult == 0){
-      shotusedsingle = 1;
-      text2.setText("Ammo: " + shotusedsingle);
-    }
-    else{
-      text2.setText("Ammo: " + shotusedmult);
-    }
-    if (score > progressionThreshold*stacks) {
-        if (enemySpeed < 2*diff+level){
-          enemySpeed+=.5;
-          console.log("enemies are faster");
-        }
-        if(score < 4000){
-          intervalID = window.setInterval(this.spawnEnemy, maxSpawnRate - progressionThreshold*stacks);
-          if(stacks < 2+diff+level){
-            stacks++;
+      if (shotusedmult == 0){
+        shotusedsingle = 1;
+        text2.setText("Ammo: " + shotusedsingle);
+      }
+      else{
+        text2.setText("Ammo: " + shotusedmult);
+      }
+      if (score > progressionThreshold*stacks) {
+          if (enemySpeed < 2*diff+level){
+            enemySpeed+=.5;
+            console.log("enemies are faster");
           }
+          if(score < 4000){
+            intervalID = window.setInterval(this.spawnEnemy, maxSpawnRate - progressionThreshold*stacks);
+            if(stacks < 2+diff+level){
+              stacks++;
+            }
 
-          console.log("new wave added");
-          console.log(intervalID);
-          timeintervals.push(intervalID);
-        }
-
-
-
-    }
-
-
-    score += 5;
-    text1.setText("Points: " + score);
+            console.log("new wave added");
+            console.log(intervalID);
+            timeintervals.push(intervalID);
+          }
+      }
+      score += 5;
+      text1.setText("Points: " + score);
+     
+    
+    
     return false;
+   
 }
 
 function spawnEnemy(){
@@ -1249,5 +1346,35 @@ function collectShotgun(player, box) {
   score++;
   text1.setText("Points: " + score);
   //generates more boxes
+  return false;
+}
+
+function spawnBoss(){
+
+  var boss = bosses.get().setActive(true).setVisible(true);
+  boss.spawnBoss(invincibility,enemySpeed);
+
+
+  return false;
+}
+
+function destroyBoss(bullet, scene) {
+  //boxLayer.removeTileAt(tile.x, tile.y); // remove the tile/coin
+  game.sound.add('bullet').play();
+  bullet.destroy();
+  if (shotusedmult == 0){
+    shotusedsingle = 1;
+    text2.setText("Ammo: " + shotusedsingle);
+  }
+  else{
+    text2.setText("Ammo: " + shotusedmult);
+  }
+  bosshealth-=2;
+  if (bosshealth <= 0){
+    bossdefeated = true;
+  }
+  console.log(bosshealth);
+
+  
   return false;
 }
