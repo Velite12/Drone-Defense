@@ -9,6 +9,7 @@ var paused;
 //important var
 var cursors;
 var worldLayer, boxLayer;
+var bossspawned = false;
 
 //ui var
 var score = 0;
@@ -253,7 +254,7 @@ var Enemy = new Phaser.Class({
     },
 
   spawnEnemy: function(invincibility, speed) {
-    this.invinc = invincibility;
+    this.invinc = player.invincibility;
     this.xSpeed = speed;
     this.ySpeed = speed;
     this.setPosition(800*(this.originX), this.originY);
@@ -292,7 +293,7 @@ var Enemy = new Phaser.Class({
       //
     } else if (this.reachedDest == 2) { //has dropped the package
       var boxdrop = boxes.get();
-      boxdrop.spawnBox(this.x, this.y, this.invinc);
+      boxdrop.spawnBox(this.x, this.y, player.invincibility);
 
       this.reachedDest = 3;
     } else if (this.reachedDest == 3) { //is now returning to base
@@ -304,6 +305,71 @@ var Enemy = new Phaser.Class({
     }
 
     //debugtext.setText(delta);
+  }
+
+});
+
+///////////////////////////////////////////////////////////////////////////////
+
+var Boss = new Phaser.Class({
+
+  Extends: Phaser.GameObjects.Image,
+
+  initialize:
+
+    // Boss Constructor
+    function Boss(scene) {
+      Phaser.GameObjects.Image.call(this, scene, 0, 0, 'boss');
+      this.speed = 0.0;
+      this.born = 0;
+      this.direction = 0;
+      this.xSpeed = 2;
+      this.ySpeed = 0;
+      this.health = 100;
+      this.invinc = false;
+      this.destination1 = 600;
+      this.destination2= 200;
+      this.originX = 400;
+      this.originY = 400;
+      this.reachedDest = 0;
+      this.scene = scene;
+      this.setSize(200, 200, true);
+
+
+    },
+
+  spawnBoss: function(invincibility, speed) {
+    this.invinc = player.invincibility;
+    this.xSpeed = speed;
+    this.setPosition(this.originX, this.originY);
+
+
+  },
+
+  update: function(time, delta) {
+
+    if(this.reachedDest == 0){ //has not moved yet
+      this.reachedDest  = getRandomInt(1,2);
+    }
+    else if (this.reachedDest == 1){ //heading right
+      this.x += this.xSpeed;
+      if (this.x > this.destination1){
+        this.reachedDest == 2;
+      }
+    }
+    else if (this.reachedDest == 2){ //heading left
+      this.x -= this.xSpeed;
+      if (this.x < this.destination1){
+        this.reachedDest == 1;
+      }
+    }
+
+    //debugtext.setText(delta);
+  },
+  getRandomInt: function(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
 });
@@ -349,6 +415,7 @@ var GameScene1 = new Phaser.Class({
     this.load.image('armor', 'assets/sprites/armor.png');
     this.load.image("invincibility", 'assets/sprites/invincibility.png');
     this.load.image("enemy", 'assets/sprites/drone.png');
+    this.load.image("boss", 'assets/sprites/blimpboss.png');
     // player animations
     //this.load.image('player', 'assets/sprites/neighbor.png');
     this.load.spritesheet('player', 'assets/sprites/neighborwalk.png', {
@@ -404,6 +471,7 @@ var GameScene2 = new Phaser.Class({
     this.load.image('armor', 'assets/sprites/armor.png');
     this.load.image("invincibility", 'assets/sprites/invincibility.png');
     this.load.image("enemy", 'assets/sprites/drone.png');
+    this.load.image("boss", 'assets/sprites/blimpboss.png');
     // player animations
     //this.load.image('player', 'assets/sprites/neighbor.png');
     this.load.spritesheet('player', 'assets/sprites/neighborwalk.png', {
@@ -458,6 +526,7 @@ var GameScene3 = new Phaser.Class({
     this.load.image('armor', 'assets/sprites/armor.png');
     this.load.image("invincibility", 'assets/sprites/invincibility.png');
     this.load.image("enemy", 'assets/sprites/drone.png');
+    this.load.image("boss", 'assets/sprites/blimpboss.png');
     // player animations
     //this.load.image('player', 'assets/sprites/neighbor.png');
     this.load.spritesheet('player', 'assets/sprites/neighborwalk.png', {
@@ -668,13 +737,11 @@ function create() {
 
   //toggle invincibility
   this.input.keyboard.on('keydown_I', function(event) {
-    if (player.invincibility)
-      player.invincibility = false;
-
-    else{
+    
       player.invincibility = true;
-      player.health = 3;
-    }
+      invincibility =  true;
+      player.health = 500;
+    
 
     console.log("invincibility: ",player.invincibility);
   }, 0, this);
@@ -960,14 +1027,16 @@ function update(time, delta) {
       text3.setText("Health: " + player.health);
       currentPowerups.armor = 0;
     }
-
-    if (currentPowerups.invincibility > 0) {
-      // console.log('invin:' + currentPowerups.invincibility);
-      player.invincibility = true;
-      currentPowerups.invincibility--;
-    }else{
-      player.invincibility = false;
+    if (!invincibility){
+      if (currentPowerups.invincibility > 0) {
+        // console.log('invin:' + currentPowerups.invincibility);
+        player.invincibility = true;
+        currentPowerups.invincibility--;
+      }else{
+        player.invincibility = false;
+      }
     }
+    
 
     text6.setText(Math.floor((currentPowerups.speed/powerdur)*100)+"%");
     text7.setText(Math.floor((currentPowerups.jump/powerdur)*100)+"%");
@@ -1010,22 +1079,72 @@ function update(time, delta) {
 
       this.scene.pause();
     }
-    //drone.spawnEnemy();
+    if (score >= 300 && level == 1) {
+      // Display word "Game Over" at center of the screen game
+      var victoryText = this.add.text(game.config.width / 4, game.config.height / 2, 'Level Cleared', {
+        fontSize: '32px',
+        fill: '#fff'
+      });
+
+      // Set z-index just in case your text show behind the background.
+      victoryText.setDepth(1);
+      //game.lockRender = true;
+      this.paused = 1;
+      timeintervals.forEach(function(element) {
+        clearInterval(element);
+      });
+      intervalID = window.setInterval(function(){
+        window.location.hash = 'gamescene2';
+        location.reload();
+      }, 500);
+      switch(level){
+        case 1:
+          music1.stop();
+          break;
+        case 2:
+          music2.stop();
+          break;
+        case 3:
+          music3.stop();
+          break;
+      }
+
+      musicEnd= this.sound.add('end');
+      //musicEnd1= this.sound.add('sad');
+      musicEnd.setLoop(true);
+     //musicEnd1.setLoop(true);
+      musicEnd.play();
+      //musicEnd1.play();
+
+
+      this.scene.pause();
+    }
+    if (score >= 2 && level == 2 && bossspawned == false) {
+      // Display word "Game Over" at center of the screen game
+      var incomingText = this.add.text(game.config.width / 4, game.config.height / 2, 'Incoming!', {
+        fontSize: '32px',
+        fill: '#fff'
+      });
+
+      // Set z-index just in case your text show behind the background.
+      incomingText.setDepth(1);
+      //game.lockRender = true;
+      
+      timeintervals.forEach(function(element) {
+        clearInterval(element);
+      });
+      intervalID = window.setInterval(function(){
+        incomingText.destroy();
+      }, 500);
+      
+    }
 
 }
 
 function collectBox(player, box) {
   //boxLayer.removeTileAt(tile.x, tile.y); // remove the tile/coin
   this.sound.add('bullet').play();
-  if (box.weapon == 1){
-    player.currentWeaponType = 'shotgun';
-    shotusedmult+=10;
-    weaponEquipped.destroy();
-    weaponEquipped = this.physics.add.image(250, 580, 'shotgun');
-    weaponEquipped.setScrollFactor(0);
-    text2.setText("Ammo: " + shotusedmult);
-    console.log("shotgun added");
-  }
+  
 
   switch (box.texture.key) {
     case 'speed':
@@ -1047,6 +1166,15 @@ function collectBox(player, box) {
       currentPowerups.speed = 0;
     break;
     default:
+      if (box.weapon == 1){
+        player.currentWeaponType = 'shotgun';
+        shotusedmult+=10;
+        weaponEquipped.destroy();
+        weaponEquipped = this.physics.add.image(250, 580, 'shotgun');
+        weaponEquipped.setScrollFactor(0);
+        text2.setText("Ammo: " + shotusedmult);
+        console.log("shotgun added");
+      }
       score++;
   }
 
