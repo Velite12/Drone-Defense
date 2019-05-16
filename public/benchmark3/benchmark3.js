@@ -764,7 +764,7 @@ function create() {
 
   // Fires bullet from player on left click of mouse
 
-  this.scene = this;
+  
 
   // Pointer lock will only work after mousedown
   game.canvas.addEventListener('mousedown', function() {
